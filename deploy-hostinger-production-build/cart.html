@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart | NamCompTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Header Mount -->
+  <div id="header-mount"></div>
+
+  <main class="container">
+    <div style="margin-top: var(--space-xl);">
+      <h1 class="text-gradient" style="font-size:2.25rem;">Shopping Cart</h1>
+      <p style="color:var(--color-secondary);">Review your items, apply promotional codes, and secure your order.</p>
+    </div>
+
+    <!-- Empty Cart Fallback -->
+    <div id="empty-cart-fallback" class="glass-panel animate-fade-in" style="display:none; text-align:center; padding:var(--space-3xl); margin-top:var(--space-lg);">
+      <i data-lucide="shopping-bag" style="width:48px; height:48px; color:var(--color-accent); margin:0 auto var(--space-md) auto;"></i>
+      <h2>Your Cart is Empty</h2>
+      <p style="color:var(--color-secondary); margin-top:var(--space-sm);">You have not added any high-performance components or systems to your cart yet.</p>
+      <a href="shop.html" class="btn btn-primary" style="margin-top:var(--space-lg);">Browse Hardware</a>
+    </div>
+
+    <!-- Active Cart Layout -->
+    <div id="active-cart-layout" class="cart-layout" style="display:none;">
+      <!-- 1. Cart Items List -->
+      <section class="glass-panel" style="padding:var(--space-lg); height:fit-content;">
+        <div class="cart-table-wrapper">
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="cart-table-body">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; margin-top:var(--space-lg); flex-wrap:wrap; gap:var(--space-sm);">
+          <a href="shop.html" class="btn btn-secondary" style="font-size:0.85rem; padding:8px 16px; min-height:auto;"><i data-lucide="arrow-left" style="width:14px; height:14px;"></i> Continue Shopping</a>
+          <button class="btn btn-secondary" id="clear-cart-btn" style="font-size:0.85rem; padding:8px 16px; min-height:auto; color:var(--color-destructive); border-color:var(--color-destructive);">Clear Cart</button>
+        </div>
+      </section>
+
+      <!-- 2. Cost Summary & Promo -->
+      <aside style="display:flex; flex-direction:column; gap:var(--space-lg);">
+        <div class="cart-summary-box glass-panel">
+          <h3 style="margin-bottom:var(--space-lg); border-bottom:1px solid var(--color-border); padding-bottom:var(--space-xs);">Order Summary</h3>
+          
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="summary-subtotal">NN$0.00</span>
+          </div>
+
+          <div class="summary-row" id="coupon-row" style="display:none; color:var(--color-success); font-weight:700;">
+            <span id="coupon-lbl">Promo Discount</span>
+            <span id="coupon-val">-NN$0.00</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span id="summary-shipping">NN$25.00</span>
+          </div>
+
+          <div class="summary-row">
+            <span>15% Sales Tax (VAT)</span>
+            <span id="summary-tax">NN$0.00</span>
+          </div>
+
+          <div class="summary-row total">
+            <span>Estimated Total</span>
+            <span id="summary-total">NN$0.00</span>
+          </div>
+
+          <a href="checkout.html" class="btn btn-primary" style="width:100%; margin-top:var(--space-md);">Proceed to Checkout <i data-lucide="lock" style="width:16px; height:16px;"></i></a>
+
+          <hr style="border:none; border-top:1px solid var(--color-border); margin:var(--space-md) 0;">
+
+          <!-- Coupon Code Entry -->
+          <form class="promo-form" id="promo-code-form">
+            <input type="text" id="promo-input" class="form-input" placeholder="Coupon Code (e.g. TECH15)" style="padding:8px 12px; font-size:0.85rem;" required>
+            <button type="submit" class="btn btn-secondary" style="padding:8px 12px; min-height:auto;">Apply</button>
+          </form>
+          <div id="promo-message" style="font-size:0.8rem; margin-top:6px; font-weight:700;"></div>
+        </div>
+
+        <!-- Simulated Sidebar AdZone -->
+        <div class="adsense-sim" id="ad-cart-sidebar" data-page="cart"></div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Footer Mount -->
+  <div id="footer-mount"></div>
+
+  <script type="module" src="app.js"></script>
+
+  <!-- Cart Specific Script -->
+  <script type="module">
+    import { StoreDb, CartState } from './app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Elements
+      const emptyFallback = document.getElementById('empty-cart-fallback');
+      const activeLayout = document.getElementById('active-cart-layout');
+      const cartTableBody = document.getElementById('cart-table-body');
+      
+      const subtotalEl = document.getElementById('summary-subtotal');
+      const couponRow = document.getElementById('coupon-row');
+      const couponValEl = document.getElementById('coupon-val');
+      const couponLblEl = document.getElementById('coupon-lbl');
+      const shippingEl = document.getElementById('summary-shipping');
+      const taxEl = document.getElementById('summary-tax');
+      const totalEl = document.getElementById('summary-total');
+
+      const promoForm = document.getElementById('promo-code-form');
+      const promoInput = document.getElementById('promo-input');
+      const promoMsg = document.getElementById('promo-message');
+      
+      let appliedCoupon = null;
+
+      function renderCart() {
+        const cartItems = CartState.getItems();
+        
+        if (cartItems.length === 0) {
+          emptyFallback.style.display = 'block';
+          activeLayout.style.display = 'none';
+          if (window.lucide) window.lucide.createIcons();
+          return;
+        }
+
+        emptyFallback.style.display = 'none';
+        activeLayout.style.display = 'grid';
+
+        cartTableBody.innerHTML = cartItems.map(item => {
+          const totalVal = item.price * item.qty;
+          return `
+            <tr class="animate-fade-in">
+              <td>
+                <div class="cart-item-info">
+                  <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+                  <div>
+                    <h4 style="font-size:0.95rem; line-height:1.2;">${item.name}</h4>
+                    <span class="badge ${item.condition === 'New' ? 'badge-new' : 'badge-used'}" style="margin-top:4px;">${item.condition}</span>
+                  </div>
+                </div>
+              </td>
+              <td>N$${item.price.toLocaleString()}</td>
+              <td>
+                <div class="qty-selector" style="min-height:36px;">
+                  <button class="qty-btn qty-minus" data-id="${item.id}" style="width:30px; height:30px;">&minus;</button>
+                  <input type="text" class="qty-input qty-val" value="${item.qty}" readonly style="width:30px;">
+                  <button class="qty-btn qty-plus" data-id="${item.id}" style="width:30px; height:30px;">+</button>
+                </div>
+              </td>
+              <td><strong>N$${totalVal.toLocaleString()}</strong></td>
+              <td>
+                <button class="btn btn-secondary remove-item-btn" data-id="${item.id}" style="padding:6px; color:var(--color-destructive); min-height:auto;" aria-label="Remove item"><i data-lucide="trash-2" style="width:16px; height:16px;"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        if (window.lucide) window.lucide.createIcons();
+
+        // Bind Qty adjusters
+        cartTableBody.querySelectorAll('.qty-minus').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            const item = cartItems.find(i => i.id === pid);
+            if (item && item.qty > 1) {
+              CartState.updateQty(pid, item.qty - 1);
+              renderCart();
+            }
+          });
+        });
+
+        cartTableBody.querySelectorAll('.qty-plus').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            const item = cartItems.find(i => i.id === pid);
+            if (item && item.qty < item.stock) {
+              CartState.updateQty(pid, item.qty + 1);
+              renderCart();
+            }
+          });
+        });
+
+        // Bind Remove buttons
+        cartTableBody.querySelectorAll('.remove-item-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            CartState.removeItem(pid);
+            renderCart();
+          });
+        });
+
+        calculateCosts(cartItems);
+      }
+
+      function calculateCosts(cartItems) {
+        const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        
+        let discount = 0;
+        if (appliedCoupon) {
+          if (appliedCoupon.minCart && subtotal < appliedCoupon.minCart) {
+            appliedCoupon = null;
+            promoMsg.textContent = `Coupon removed. Minimum order value not met.`;
+            promoMsg.style.color = 'var(--color-destructive)';
+          } else {
+            if (appliedCoupon.discountType === 'percentage') {
+              discount = (subtotal * appliedCoupon.discountValue) / 100;
+            } else if (appliedCoupon.discountType === 'fixed') {
+              discount = appliedCoupon.discountValue;
+            }
+          }
+        }
+
+        // Apply coupon to state so checkout can read it
+        localStorage.setItem('nct_checkout_coupon', JSON.stringify(appliedCoupon));
+
+        // Shipping logic
+        let shipping = 25.00;
+        if (subtotal >= 1500) {
+          shipping = 0; // Free shipping over N$1500
+        }
+        if (appliedCoupon && appliedCoupon.isFreeShipping) {
+          shipping = 0; // Free shipping via coupon
+        }
+
+        const taxableBase = Math.max(0, subtotal - discount);
+        const tax = taxableBase * 0.15;
+        const total = taxableBase + shipping + tax;
+
+        // Render figures
+        subtotalEl.textContent = `N$${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        shippingEl.textContent = shipping === 0 ? 'FREE' : `N$${shipping.toFixed(2)}`;
+        taxEl.textContent = `N$${tax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        totalEl.textContent = `N$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+        if (discount > 0) {
+          couponRow.style.display = 'flex';
+          couponLblEl.textContent = `Discount (${appliedCoupon.code})`;
+          couponValEl.textContent = `-N$${discount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        } else {
+          couponRow.style.display = 'none';
+        }
+      }
+
+      // Promo Submit Handler
+      promoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = promoInput.value.trim().toUpperCase();
+        const coupons = StoreDb.get('coupons') || [];
+        const coupon = coupons.find(c => c.code === code);
+
+        const subtotalVal = CartState.getItems().reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+        if (!coupon) {
+          promoMsg.textContent = 'Invalid promo coupon code.';
+          promoMsg.style.color = 'var(--color-destructive)';
+          appliedCoupon = null;
+        } else if (coupon.minCart && subtotalVal < coupon.minCart) {
+          promoMsg.textContent = `Minimum order amount of N$${coupon.minCart} is required.`;
+          promoMsg.style.color = 'var(--color-destructive)';
+          appliedCoupon = null;
+        } else {
+          appliedCoupon = coupon;
+          promoMsg.textContent = `Coupon "${coupon.code}" successfully applied! (${coupon.desc})`;
+          promoMsg.style.color = 'var(--color-success)';
+          promoInput.value = '';
+        }
+        
+        renderCart();
+      });
+
+      // Clear Cart Click
+      document.getElementById('clear-cart-btn')?.addEventListener('click', () => {
+        if (confirm("Are you sure you want to clear your shopping cart?")) {
+          CartState.clear();
+          appliedCoupon = null;
+          renderCart();
+        }
+      });
+
+      // Render cart instantly
+      renderCart();
+    });
+  </script>
+</body>
+</html>

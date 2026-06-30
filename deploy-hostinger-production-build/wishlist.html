@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Wishlist | NamCompTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Header Mount -->
+  <div id="header-mount"></div>
+
+  <main class="container">
+    <div style="margin-top: var(--space-xl);">
+      <h1 class="text-gradient" style="font-size:2.25rem;">My Wishlist</h1>
+      <p style="color:var(--color-secondary);">Browse, review, and add your bookmarked items to your shopping cart.</p>
+    </div>
+
+    <!-- Empty Wishlist Fallback -->
+    <div id="wishlist-empty-fallback" class="glass-panel animate-fade-in" style="display:none; text-align:center; padding:var(--space-3xl); margin-top:var(--space-lg);">
+      <i data-lucide="heart" style="width:48px; height:48px; color:var(--color-accent); margin:0 auto var(--space-md) auto;"></i>
+      <h2>Your Wishlist is Empty</h2>
+      <p style="color:var(--color-secondary); margin-top:var(--space-sm);">You haven't bookmarked any hardware. Tap the heart on products to save them for later.</p>
+      <a href="shop.html" class="btn btn-primary" style="margin-top:var(--space-lg);">Explore Hardware</a>
+    </div>
+
+    <!-- Active Wishlist Grid -->
+    <div class="product-grid" id="wishlist-products-grid" style="margin-top:var(--space-lg); display:none;">
+      <!-- Dynamic list -->
+    </div>
+  </main>
+
+  <!-- Footer Mount -->
+  <div id="footer-mount"></div>
+
+  <script type="module" src="app.js"></script>
+
+  <!-- Wishlist specific JS -->
+  <script type="module">
+    import { StoreDb, CartState, WishlistState, CompareState } from './app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const catalog = StoreDb.get('catalog') || [];
+      const grid = document.getElementById('wishlist-products-grid');
+      const fallback = document.getElementById('wishlist-empty-fallback');
+
+      function renderWishlist() {
+        const wishlistIds = WishlistState.getItems();
+        
+        if (wishlistIds.length === 0) {
+          fallback.style.display = 'block';
+          grid.style.display = 'none';
+          if (window.lucide) window.lucide.createIcons();
+          return;
+        }
+
+        fallback.style.display = 'none';
+        grid.style.display = 'grid';
+
+        const wishProducts = wishlistIds.map(id => catalog.find(p => p.id === id)).filter(Boolean);
+
+        grid.innerHTML = wishProducts.map(p => {
+          const condBadge = p.condition === 'New' 
+            ? `<span class="badge badge-new product-card-badge">New</span>`
+            : p.condition === 'Open Box'
+            ? `<span class="badge badge-openbox product-card-badge">Open Box</span>`
+            : `<span class="badge badge-used product-card-badge">Refurbished</span>`;
+
+          return `
+            <div class="product-card glass-panel animate-fade-in">
+              ${condBadge}
+              <button class="product-card-wishlist active" data-id="${p.id}" aria-label="Remove from wishlist" style="color:#DC2626;"><i data-lucide="heart" style="width:18px; height:18px;"></i></button>
+              <div class="product-card-img-box">
+                <a href="product.html?id=${p.id}"><img src="${p.image}" alt="${p.name}" class="product-card-img"></a>
+              </div>
+              <div class="product-card-info">
+                <span class="product-card-category">${p.category.toUpperCase()}</span>
+                <a href="product.html?id=${p.id}"><h3 class="product-card-title">${p.name}</h3></a>
+                <div class="product-card-rating">
+                  <i data-lucide="star" style="width:14px; height:14px; fill:currentColor;"></i>
+                  <strong>${p.rating}</strong>
+                  <span>(${p.reviews.length})</span>
+                </div>
+                <div class="product-card-footer">
+                  <div class="product-card-price">N$${p.price.toLocaleString()}</div>
+                  <div class="product-card-actions">
+                    <button class="btn btn-secondary btn-card-action compare-toggle-btn" data-id="${p.id}" title="Compare specifications"><i data-lucide="git-compare" style="width:16px; height:16px;"></i></button>
+                    <button class="btn btn-primary btn-card-action add-to-cart-btn" data-id="${p.id}" title="Add to shopping cart"><i data-lucide="shopping-cart" style="width:16px; height:16px;"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        if (window.lucide) window.lucide.createIcons();
+
+        // Bind Add to Cart
+        grid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            CartState.addItem(btn.getAttribute('data-id'), 1);
+            alert('Product added to shopping cart!');
+          });
+        });
+
+        // Bind Remove from Wishlist
+        grid.querySelectorAll('.product-card-wishlist').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            WishlistState.toggleItem(pid);
+            renderWishlist(); // Re-render
+          });
+        });
+
+        // Bind Compare
+        grid.querySelectorAll('.compare-toggle-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            CompareState.addItem(btn.getAttribute('data-id'));
+          });
+        });
+      }
+
+      // Initial load
+      renderWishlist();
+    });
+  </script>
+</body>
+</html>

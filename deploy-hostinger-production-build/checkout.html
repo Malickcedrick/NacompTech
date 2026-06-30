@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Checkout | NamCompTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Header Mount -->
+  <div id="header-mount"></div>
+
+  <main class="container">
+    <div style="margin-top: var(--space-xl);">
+      <h1 class="text-gradient" style="font-size:2.25rem;">Secure Checkout</h1>
+      <p style="color:var(--color-secondary);">Provide shipping addresses and payment credentials to submit your hardware order.</p>
+    </div>
+
+    <!-- Empty Cart Checkout Redirect Fallback -->
+    <div id="checkout-empty-fallback" class="glass-panel" style="display:none; text-align:center; padding:var(--space-3xl); margin-top:var(--space-lg);">
+      <i data-lucide="alert-triangle" style="width:48px; height:48px; color:var(--color-accent); margin:0 auto var(--space-md) auto;"></i>
+      <h2>Your Cart is Empty</h2>
+      <p style="color:var(--color-secondary); margin-top:var(--space-sm);">You cannot checkout without items in your cart. Redirecting to Shop...</p>
+      <a href="shop.html" class="btn btn-primary" style="margin-top:var(--space-lg);">Go to Shop</a>
+    </div>
+
+    <!-- Active Checkout Layout -->
+    <div id="checkout-layout" class="checkout-layout" style="display:none;">
+      <!-- 1. Forms (Shipping & Payment) -->
+      <form class="checkout-steps" id="checkout-main-form">
+        <!-- Shipping Details -->
+        <fieldset class="checkout-panel glass-panel" style="border:none;">
+          <h3 class="checkout-panel-title">
+            <i data-lucide="truck" style="width:20px; height:20px; color:var(--color-accent);"></i> Shipping Details
+          </h3>
+          <div class="checkout-grid">
+            <div class="form-group grid-full">
+              <label class="form-label" for="ship-name">Full Name</label>
+              <input type="text" id="ship-name" class="form-input" required placeholder="Johnathan Doe">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ship-email">Email Address</label>
+              <input type="email" id="ship-email" class="form-input" required placeholder="john.doe@tech.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ship-phone">Phone Number</label>
+              <input type="tel" id="ship-phone" class="form-input" required placeholder="+1 (555) 123-4567">
+            </div>
+            <div class="form-group grid-full">
+              <label class="form-label" for="ship-address">Street Address</label>
+              <input type="text" id="ship-address" class="form-input" required placeholder="123 Silicon Boulevard, Suite 400">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ship-city">City</label>
+              <input type="text" id="ship-city" class="form-input" required placeholder="San Jose">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ship-zip">ZIP / Postal Code</label>
+              <input type="text" id="ship-zip" class="form-input" required placeholder="95112">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Payment Details -->
+        <fieldset class="checkout-panel glass-panel" style="border:none;">
+          <h3 class="checkout-panel-title">
+            <i data-lucide="credit-card" style="width:20px; height:20px; color:var(--color-accent);"></i> Payment Method
+          </h3>
+          <div class="payment-options">
+            <!-- Credit Card Option -->
+            <div style="border-radius:var(--radius-md); overflow:hidden;">
+              <label class="payment-label">
+                <input type="radio" name="payment-method" value="Credit Card" checked class="payment-radio" id="pay-cc-radio">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="credit-card" style="width:18px; height:18px;"></i>
+                  Credit Card
+                </span>
+              </label>
+              
+              <div class="card-fields-box" id="credit-card-fields" style="display:block;">
+                <div class="form-group">
+                  <label class="form-label" for="cc-number">Card Number</label>
+                  <input type="text" id="cc-number" class="form-input" placeholder="4242 4242 4242 4242" pattern="\\d{16}" title="Must be a 16-digit credit card number">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md);">
+                  <div class="form-group">
+                    <label class="form-label" for="cc-expiry">Expiration Date</label>
+                    <input type="text" id="cc-expiry" class="form-input" placeholder="MM/YY" pattern="\\d{2}/\\d{2}" title="Must be MM/YY format">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="cc-cvv">CVV</label>
+                    <input type="password" id="cc-cvv" class="form-input" placeholder="***" pattern="\\d{3,4}" title="Must be a 3 or 4-digit security code">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PayPal Option -->
+            <div>
+              <label class="payment-label">
+                <input type="radio" name="payment-method" value="PayPal" class="payment-radio" id="pay-paypal-radio">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="wallet" style="width:18px; height:18px;"></i>
+                  PayPal Express
+                </span>
+              </label>
+              <div class="card-fields-box" id="paypal-info-box" style="display:none; padding:var(--space-md);">
+                <p style="font-size:0.85rem; color:var(--color-secondary);">You will be redirected to PayPal to complete authorization once you click "Submit Order".</p>
+              </div>
+            </div>
+
+            <!-- EFT / Bank Transfer Option -->
+            <div>
+              <label class="payment-label">
+                <input type="radio" name="payment-method" value="Bank Transfer (EFT)" class="payment-radio" id="pay-eft-radio">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="landmark" style="width:18px; height:18px;"></i>
+                  Bank Transfer (EFT)
+                </span>
+              </label>
+              <div class="card-fields-box" id="eft-info-box" style="display:none; padding:var(--space-md); border: 1px dashed var(--color-accent); border-radius: var(--radius-md); background: var(--color-muted); margin-top: var(--space-xs);">
+                <p style="font-size:0.85rem; color:var(--color-secondary); margin-bottom:var(--space-sm);">Please transfer the total amount to our bank account and email proof of payment to <strong>namibiamtech@gmail.com</strong>.</p>
+                <div style="font-size:0.85rem; font-family:monospace; line-height:1.4;">
+                  <div><strong>Bank:</strong> FNB/RMB</div>
+                  <div><strong>Account Number:</strong> 64280109206</div>
+                  <div><strong>Branch Code:</strong> 280673</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:14px; font-size:1.1rem; box-shadow:0 8px 16px rgba(3, 83, 164, 0.3);">Submit Order & Pay</button>
+      </form>
+
+      <!-- 2. Summary Sidebar -->
+      <aside class="glass-panel" style="padding:var(--space-lg); height:fit-content;">
+        <h3 style="margin-bottom:var(--space-md); border-bottom:1px solid var(--color-border); padding-bottom:var(--space-xs);">Items in Order</h3>
+        
+        <div id="checkout-items-list" style="display:flex; flex-direction:column; gap:var(--space-md); margin-bottom:var(--space-lg);">
+          <!-- Injected dynamically -->
+        </div>
+
+        <div style="border-top:1px solid var(--color-border); padding-top:var(--space-md);">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="checkout-subtotal">NN$0.00</span>
+          </div>
+          <div class="summary-row" id="checkout-coupon-row" style="display:none; color:var(--color-success); font-weight:700;">
+            <span id="checkout-coupon-lbl">Promo Code</span>
+            <span id="checkout-coupon-val">-NN$0.00</span>
+          </div>
+          <div class="summary-row">
+            <span>Express Shipping</span>
+            <span id="checkout-shipping">NN$25.00</span>
+          </div>
+          <div class="summary-row">
+            <span>15% Sales Tax (VAT)</span>
+            <span id="checkout-tax">NN$0.00</span>
+          </div>
+          <div class="summary-row total" style="font-size:1.25rem; font-weight:700;">
+            <span>Total Amount</span>
+            <span id="checkout-total">NN$0.00</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- 3. Checkout Success Modal Overlay -->
+  <div class="modal-overlay" id="success-modal-overlay">
+    <div class="modal-box glass-panel" style="text-align:center; max-width:440px;">
+      <div style="width:64px; height:64px; background-color:var(--color-success); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto var(--space-md) auto; font-size:2rem; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);">
+        <i data-lucide="check" style="width:32px; height:32px;"></i>
+      </div>
+      <h2 class="text-gradient">Order Placed Successfully!</h2>
+      <p style="color:var(--color-secondary); margin-top:var(--space-sm); font-size:0.9rem;">Thank you for shopping at NamCompTech. Your payment has been authorized and stock has been allocated.</p>
+      
+      <div class="glass-panel" style="padding:var(--space-md); margin:var(--space-md) 0; font-size:0.85rem; text-align:left; background-color:var(--color-muted); line-height:1.4;">
+        <div style="border-bottom:1px solid var(--color-border); padding-bottom:6px; margin-bottom:6px; text-align:center;">
+          <strong style="display:block; font-size:0.9rem;">TAX INVOICE / RECEIPT</strong>
+          <span style="font-size:0.75rem; color:var(--color-secondary);">Namibia Computer Technology Investment CC</span><br>
+          <span style="font-size:0.75rem; color:var(--color-secondary);">Reg No: CC/2014/14142</span>
+        </div>
+        <div style="margin-bottom:4px;"><strong>Order Reference:</strong> <span id="success-order-id" style="font-family:monospace; font-weight:700; color:var(--color-accent);">NCT-XXXXX</span></div>
+        <div style="margin-bottom:4px;"><strong>Payment Method:</strong> <span id="success-payment">Credit Card</span></div>
+        <div style="margin-bottom:4px;"><strong>Total Amount:</strong> <span id="success-total" style="font-weight:700; color:var(--color-accent);">NN$0.00</span> (Inc 15% VAT)</div>
+        <div id="eft-success-instructions" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid var(--color-border); font-size:0.8rem; color:var(--color-success); font-weight:700;">
+          Please deposit payment to FNB Account 64280109206 (Branch 280673) and email proof of payment to namibiamtech@gmail.com with your Order Reference.
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="success-ok-btn" style="width:100%;">View Order History</button>
+    </div>
+  </div>
+
+  <!-- Footer Mount -->
+  <div id="footer-mount"></div>
+
+  <script type="module" src="app.js"></script>
+
+  <!-- Checkout specific JS -->
+  <script type="module">
+    import { StoreDb, CartState } from './app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const cartItems = CartState.getItems();
+      
+      const fallbackEl = document.getElementById('checkout-empty-fallback');
+      const layoutEl = document.getElementById('checkout-layout');
+
+      // If cart empty, redirect
+      if (cartItems.length === 0) {
+        fallbackEl.style.display = 'block';
+        if (window.lucide) window.lucide.createIcons();
+        setTimeout(() => {
+          window.location.href = 'shop.html';
+        }, 3000);
+        return;
+      }
+
+      layoutEl.style.display = 'grid';
+
+      // Selectors
+      const itemsList = document.getElementById('checkout-items-list');
+      const subtotalEl = document.getElementById('checkout-subtotal');
+      const couponRow = document.getElementById('checkout-coupon-row');
+      const couponValEl = document.getElementById('checkout-coupon-val');
+      const couponLblEl = document.getElementById('checkout-coupon-lbl');
+      const shippingEl = document.getElementById('checkout-shipping');
+      const taxEl = document.getElementById('checkout-tax');
+      const totalEl = document.getElementById('checkout-total');
+
+      const ccRadio = document.getElementById('pay-cc-radio');
+      const paypalRadio = document.getElementById('pay-paypal-radio');
+      const eftRadio = document.getElementById('pay-eft-radio');
+      const ccFields = document.getElementById('credit-card-fields');
+      const paypalInfo = document.getElementById('paypal-info-box');
+      const eftInfo = document.getElementById('eft-info-box');
+
+      const ccNumInput = document.getElementById('cc-number');
+      const ccExpInput = document.getElementById('cc-expiry');
+      const ccCvvInput = document.getElementById('cc-cvv');
+
+      // 1. Toggle Payment details
+      ccRadio.addEventListener('change', () => {
+        ccFields.style.display = 'block';
+        paypalInfo.style.display = 'none';
+        eftInfo.style.display = 'none';
+        // Make CC fields required
+        ccNumInput.required = true;
+        ccExpInput.required = true;
+        ccCvvInput.required = true;
+      });
+
+      paypalRadio.addEventListener('change', () => {
+        ccFields.style.display = 'none';
+        paypalInfo.style.display = 'block';
+        eftInfo.style.display = 'none';
+        // Disable CC required
+        ccNumInput.required = false;
+        ccExpInput.required = false;
+        ccCvvInput.required = false;
+      });
+
+      eftRadio.addEventListener('change', () => {
+        ccFields.style.display = 'none';
+        paypalInfo.style.display = 'none';
+        eftInfo.style.display = 'block';
+        // Disable CC required
+        ccNumInput.required = false;
+        ccExpInput.required = false;
+        ccCvvInput.required = false;
+      });
+
+      // Default required states
+      ccNumInput.required = true;
+      ccExpInput.required = true;
+      ccCvvInput.required = true;
+
+      // 2. Render summary calculations
+      itemsList.innerHTML = cartItems.map(item => `
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9rem;">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <img src="${item.image}" alt="${item.name}" style="width:40px; height:40px; object-fit:cover; border-radius:var(--radius-sm);">
+            <div>
+              <span style="font-weight:700; display:block;">${item.name}</span>
+              <span style="color:var(--color-muted-foreground); font-size:0.8rem;">Qty: ${item.qty} &bull; ${item.condition}</span>
+            </div>
+          </div>
+          <span>N$${(item.price * item.qty).toLocaleString()}</span>
+        </div>
+      `).join('');
+
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      
+      const appliedCoupon = JSON.parse(localStorage.getItem('nct_checkout_coupon'));
+      let discount = 0;
+      if (appliedCoupon) {
+        if (appliedCoupon.discountType === 'percentage') {
+          discount = (subtotal * appliedCoupon.discountValue) / 100;
+        } else if (appliedCoupon.discountType === 'fixed') {
+          discount = appliedCoupon.discountValue;
+        }
+      }
+
+      let shipping = subtotal >= 1500 ? 0 : 25.00;
+      if (appliedCoupon && appliedCoupon.isFreeShipping) {
+        shipping = 0;
+      }
+
+      const taxableBase = Math.max(0, subtotal - discount);
+      const tax = taxableBase * 0.15;
+      const total = taxableBase + shipping + tax;
+
+      subtotalEl.textContent = `N$${subtotal.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+      shippingEl.textContent = shipping === 0 ? 'FREE' : `N$${shipping.toFixed(2)}`;
+      taxEl.textContent = `N$${tax.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+      totalEl.textContent = `N$${total.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+
+      if (discount > 0) {
+        couponRow.style.display = 'flex';
+        couponLblEl.textContent = `Coupon (${appliedCoupon.code})`;
+        couponValEl.textContent = `-N$${discount.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+      }
+
+      // 3. Checkout Form Submit (Save order, deduct inventory, clear cart)
+      const form = document.getElementById('checkout-main-form');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Compile customer object
+        const orderId = `NCT-${Math.floor(10000 + Math.random() * 90000)}`;
+        const name = document.getElementById('ship-name').value;
+        const email = document.getElementById('ship-email').value;
+        const phone = document.getElementById('ship-phone').value;
+        const address = document.getElementById('ship-address').value;
+        const city = document.getElementById('ship-city').value;
+        const zip = document.getElementById('ship-zip').value;
+
+        const paymentMethod = ccRadio.checked 
+          ? `Credit Card (ending *${ccNumInput.value.slice(-4)})` 
+          : (paypalRadio.checked ? 'PayPal' : 'Bank Transfer (EFT)');
+
+        // Fetch current catalog to update stocks
+        const catalog = StoreDb.get('catalog') || [];
+        
+        // Loop cart and decrement catalog inventory stock
+        cartItems.forEach(cartItem => {
+          const catItem = catalog.find(p => p.id === cartItem.id);
+          if (catItem) {
+            catItem.stock = Math.max(0, catItem.stock - cartItem.qty);
+          }
+        });
+        
+        // Update catalog back
+        StoreDb.set('catalog', catalog);
+
+        // Save order record
+        const newOrder = {
+          id: orderId,
+          date: new Date().toISOString(),
+          customer: { name, email, phone, address: `${address}, ${city}, ZIP ${zip}` },
+          items: cartItems.map(item => ({ id: item.id, name: item.name, price: item.price, qty: item.qty })),
+          subtotal,
+          discount,
+          shipping,
+          tax,
+          total,
+          paymentMethod,
+          status: 'Pending'
+        };
+
+        const orders = StoreDb.get('orders') || [];
+        orders.unshift(newOrder);
+        StoreDb.set('orders', orders);
+
+        // Trigger Success Modal
+        document.getElementById('success-order-id').textContent = orderId;
+        document.getElementById('success-payment').textContent = paymentMethod;
+        document.getElementById('success-total').textContent = `N$${total.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+
+        if (eftRadio.checked) {
+          document.getElementById('eft-success-instructions').style.display = 'block';
+        } else {
+          document.getElementById('eft-success-instructions').style.display = 'none';
+        }
+
+        // Clear cart states
+        CartState.clear();
+        localStorage.removeItem('nct_checkout_coupon');
+
+        // Open modal
+        const successModal = document.getElementById('success-modal-overlay');
+        successModal.classList.add('active');
+        if (window.lucide) window.lucide.createIcons();
+      });
+
+      // OK Click Success
+      document.getElementById('success-ok-btn').addEventListener('click', () => {
+        window.location.href = 'account.html';
+      });
+    });
+  </script>
+</body>
+</html>

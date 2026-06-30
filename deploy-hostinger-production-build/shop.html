@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop IT Hardware & Custom PCs | NamCompTech</title>
+  <meta name="description" content="Browse our catalog of premium laptops, custom gaming PCs, components, and premium accessories. Fast shipping, guaranteed warranty.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Header Mount -->
+  <div id="header-mount"></div>
+
+  <main class="container">
+    <div style="margin-top: var(--space-xl);">
+      <h1 class="text-gradient" style="font-size:2.25rem;">Hardware Catalog</h1>
+      <p style="color:var(--color-secondary);">Find premium components, new arrivals, and high-performance prebuilts.</p>
+    </div>
+
+    <div class="shop-layout">
+      <!-- 1. Side Filter Panel -->
+      <aside class="filter-sidebar glass-panel">
+        <div>
+          <h3 class="filter-section-title">Search</h3>
+          <div class="form-group" style="margin-bottom:0; display:flex; gap:var(--space-xs);">
+            <input type="text" id="shop-search-input" placeholder="Type keyphrase..." class="form-input" style="padding:8px 12px; font-size:0.85rem;">
+            <button class="btn btn-primary" id="shop-search-btn" style="padding:8px 12px; min-height:auto;"><i data-lucide="search" style="width:16px; height:16px;"></i></button>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="filter-section-title">Categories</h3>
+          <ul class="filter-list" id="category-filter-list">
+            <li>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" class="filter-checkbox category-chk" value="laptops">
+                Laptops
+              </label>
+            </li>
+            <li>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" class="filter-checkbox category-chk" value="desktops">
+                Desktops & Towers
+              </label>
+            </li>
+            <li>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" class="filter-checkbox category-chk" value="components">
+                PC Components
+              </label>
+            </li>
+            <li>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" class="filter-checkbox category-chk" value="accessories">
+                Accessories
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="filter-section-title">Condition</h3>
+          <ul class="filter-list">
+            <li>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" class="filter-checkbox condition-chk" value="New">
+                Brand New
+              </label>
+            </li>
+            <li>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" class="filter-checkbox condition-chk" value="Open Box">
+                Open Box Deals
+              </label>
+            </li>
+            <li>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" class="filter-checkbox condition-chk" value="Refurbished">
+                Used & Refurbished
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="filter-section-title">Price Range</h3>
+          <div class="price-range-inputs">
+            <input type="number" id="price-min" placeholder="Min" class="price-range-input" min="0">
+            <span style="color:var(--color-muted-foreground);">&ndash;</span>
+            <input type="number" id="price-max" placeholder="Max" class="price-range-input" min="0">
+          </div>
+        </div>
+
+        <div>
+          <button class="btn btn-secondary" id="clear-filters-btn" style="width:100%; padding:8px; font-size:0.85rem; min-height:auto;">Reset Filters</button>
+        </div>
+
+        <!-- Simulated Sidebar AdZone -->
+        <div class="adsense-sim" id="ad-shop-sidebar" data-page="shop" style="margin-top:var(--space-md);"></div>
+      </aside>
+
+      <!-- 2. Product Catalog Listings -->
+      <section>
+        <div class="shop-content-header">
+          <div id="results-count-text" style="font-weight:700; color:var(--color-secondary);">
+            Showing all products
+          </div>
+          <div>
+            <label for="sort-select" style="font-size:0.85rem; font-weight:700; color:var(--color-secondary); margin-right:8px;">Sort By:</label>
+            <select id="sort-select" class="shop-sort-select">
+              <option value="featured">Featured Selections</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating">Top Rated</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="product-grid" id="shop-products-grid">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- No matches fallback -->
+        <div id="no-products-fallback" class="glass-panel" style="display:none; text-align:center; padding:var(--space-3xl);">
+          <i data-lucide="alert-circle" style="width:48px; height:48px; color:var(--color-accent); margin:0 auto var(--space-md) auto;"></i>
+          <h2>No Tech Matches Found</h2>
+          <p style="color:var(--color-secondary); margin-top:var(--space-sm);">Try adjusting your category checks, price fields, or condition filters.</p>
+          <button class="btn btn-primary" id="fallback-reset-btn" style="margin-top:var(--space-lg);">Reset All Filters</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer Mount -->
+  <div id="footer-mount"></div>
+
+  <script type="module" src="app.js"></script>
+
+  <!-- Shop page script -->
+  <script type="module">
+    import { StoreDb, CartState, WishlistState, CompareState } from './app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const catalog = StoreDb.get('catalog') || [];
+      const wishlist = StoreDb.get('wishlist') || [];
+
+      // Selectors
+      const searchInput = document.getElementById('shop-search-input');
+      const searchBtn = document.getElementById('shop-search-btn');
+      const resultsText = document.getElementById('results-count-text');
+      const sortSelect = document.getElementById('sort-select');
+      const priceMin = document.getElementById('price-min');
+      const priceMax = document.getElementById('price-max');
+      const clearBtn = document.getElementById('clear-filters-btn');
+      const fallbackResetBtn = document.getElementById('fallback-reset-btn');
+      const productsGrid = document.getElementById('shop-products-grid');
+      const fallbackContainer = document.getElementById('no-products-fallback');
+
+      // 1. Read URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialCategory = urlParams.get('category');
+      const initialSearch = urlParams.get('search');
+      const initialCondition = urlParams.get('condition');
+
+      if (initialCategory) {
+        document.querySelectorAll('.category-chk').forEach(chk => {
+          if (chk.value === initialCategory) chk.checked = true;
+        });
+      }
+      if (initialSearch) {
+        searchInput.value = initialSearch;
+      }
+      if (initialCondition) {
+        document.querySelectorAll('.condition-chk').forEach(chk => {
+          if (chk.value === initialCondition) chk.checked = true;
+        });
+      }
+
+      // 2. Filter & Render Function
+      function filterAndRender() {
+        let items = [...catalog];
+
+        // Search text filter
+        const query = searchInput.value.trim().toLowerCase();
+        if (query) {
+          items = items.filter(p => 
+            p.name.toLowerCase().includes(query) || 
+            p.desc.toLowerCase().includes(query) ||
+            p.brand.toLowerCase().includes(query) ||
+            p.specs && Object.values(p.specs).some(val => val.toLowerCase().includes(query))
+          );
+        }
+
+        // Category checkboxes
+        const activeCategories = Array.from(document.querySelectorAll('.category-chk:checked')).map(c => c.value);
+        if (activeCategories.length > 0) {
+          items = items.filter(p => activeCategories.includes(p.category));
+        }
+
+        // Condition checkboxes
+        const activeConditions = Array.from(document.querySelectorAll('.condition-chk:checked')).map(c => c.value);
+        if (activeConditions.length > 0) {
+          items = items.filter(p => activeConditions.includes(p.condition));
+        }
+
+        // Price boundaries
+        const minVal = parseFloat(priceMin.value);
+        if (!isNaN(minVal) && minVal >= 0) {
+          items = items.filter(p => p.price >= minVal);
+        }
+        const maxVal = parseFloat(priceMax.value);
+        if (!isNaN(maxVal) && maxVal >= 0) {
+          items = items.filter(p => p.price <= maxVal);
+        }
+
+        // Sort items
+        const sortVal = sortSelect.value;
+        if (sortVal === 'price-asc') {
+          items.sort((a, b) => a.price - b.price);
+        } else if (sortVal === 'price-desc') {
+          items.sort((a, b) => b.price - a.price);
+        } else if (sortVal === 'rating') {
+          items.sort((a, b) => b.rating - a.rating);
+        } else {
+          // featured/default: Sort featured first, then name
+          items.sort((a, b) => {
+            if (a.featured && !b.featured) return -1;
+            if (!a.featured && b.featured) return 1;
+            return a.name.localeCompare(b.name);
+          });
+        }
+
+        // Display results count
+        resultsText.textContent = `Showing ${items.length} of ${catalog.length} products`;
+
+        if (items.length === 0) {
+          productsGrid.style.display = 'none';
+          fallbackContainer.style.display = 'block';
+        } else {
+          productsGrid.style.display = 'grid';
+          fallbackContainer.style.display = 'none';
+          
+          // Render cards
+          productsGrid.innerHTML = items.map(p => {
+            const isWish = wishlist.includes(p.id) ? 'active' : '';
+            const condBadge = p.condition === 'New' 
+              ? `<span class="badge badge-new product-card-badge">New</span>`
+              : p.condition === 'Open Box'
+              ? `<span class="badge badge-openbox product-card-badge">Open Box</span>`
+              : `<span class="badge badge-used product-card-badge">Refurbished</span>`;
+
+            return `
+              <div class="product-card glass-panel animate-fade-in">
+                ${condBadge}
+                <button class="product-card-wishlist ${isWish}" data-id="${p.id}" aria-label="Add to wishlist"><i data-lucide="heart" style="width:18px; height:18px;"></i></button>
+                <div class="product-card-img-box">
+                  <a href="product.html?id=${p.id}"><img src="${p.image}" alt="${p.name}" class="product-card-img"></a>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-card-category">${p.category.toUpperCase()}</span>
+                  <a href="product.html?id=${p.id}"><h3 class="product-card-title">${p.name}</h3></a>
+                  <div class="product-card-rating">
+                    <i data-lucide="star" style="width:14px; height:14px; fill:currentColor;"></i>
+                    <strong>${p.rating}</strong>
+                    <span>(${p.reviews.length})</span>
+                  </div>
+                  <div class="product-card-footer">
+                    <div class="product-card-price">N$${p.price.toLocaleString()}</div>
+                    <div class="product-card-actions">
+                      <button class="btn btn-secondary btn-card-action compare-toggle-btn" data-id="${p.id}" title="Compare specifications"><i data-lucide="git-compare" style="width:16px; height:16px;"></i></button>
+                      <button class="btn btn-primary btn-card-action add-to-cart-btn" data-id="${p.id}" title="Add to shopping cart"><i data-lucide="shopping-cart" style="width:16px; height:16px;"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          // Refresh Icons
+          if (window.lucide) window.lucide.createIcons();
+
+          // Bind Actions
+          productsGrid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              CartState.addItem(btn.getAttribute('data-id'), 1);
+              alert('Product added to shopping cart!');
+            });
+          });
+
+          productsGrid.querySelectorAll('.product-card-wishlist').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const pid = btn.getAttribute('data-id');
+              WishlistState.toggleItem(pid);
+              btn.classList.toggle('active');
+            });
+          });
+
+          productsGrid.querySelectorAll('.compare-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const pid = btn.getAttribute('data-id');
+              CompareState.addItem(pid);
+            });
+          });
+        }
+      }
+
+      // 3. Reset filters
+      function resetFilters() {
+        searchInput.value = '';
+        priceMin.value = '';
+        priceMax.value = '';
+        sortSelect.value = 'featured';
+        document.querySelectorAll('.category-chk, .condition-chk').forEach(chk => chk.checked = false);
+        filterAndRender();
+      }
+
+      // 4. Bind Events
+      searchBtn.addEventListener('click', filterAndRender);
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') filterAndRender();
+      });
+      sortSelect.addEventListener('change', filterAndRender);
+      priceMin.addEventListener('input', filterAndRender);
+      priceMax.addEventListener('input', filterAndRender);
+      clearBtn.addEventListener('click', resetFilters);
+      fallbackResetBtn.addEventListener('click', resetFilters);
+
+      document.querySelectorAll('.category-chk, .condition-chk').forEach(chk => {
+        chk.addEventListener('change', filterAndRender);
+      });
+
+      // Initial execution
+      filterAndRender();
+    });
+  </script>
+</body>
+</html>

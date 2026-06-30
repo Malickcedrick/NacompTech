@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.agents/
+temp-gemini-cli/
+ui-ux-pro-max-skill/
+.gemini/
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store

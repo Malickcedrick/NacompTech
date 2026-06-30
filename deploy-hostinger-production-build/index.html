@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NamCompTech | Premium Electronics & Custom Rigs</title>
+  <meta name="description" content="Premium electronics e-commerce store for laptops, desktops, components, and high-end accessories. Fully custom builds and refurbished items available.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Injected dynamically by app.js -->
+  <div id="header-mount"></div>
+
+  <main class="container">
+    <!-- 1. Hero Banner Slider -->
+    <section class="hero-slider glass-panel" id="hero-slider">
+
+      <!-- Shared canvas background (plays through all 3 slides) to prevent IDM intercept -->
+      <canvas class="hero-video-bg" id="hero-canvas"></canvas>
+      <video id="hero-video-source" autoplay loop muted playsinline preload="auto" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -9999;">
+        <source src="assets/heerero.mp4" type="video/mp4">
+      </video>
+      <!-- Gradient overlay on top of video -->
+      <div class="hero-video-overlay"></div>
+
+      <!-- Slide 1: Laptops -->
+      <div class="hero-slide active" id="hero-slide-1">
+        <div class="hero-slide-content">
+          <span class="badge badge-openbox" style="margin-bottom: var(--space-sm);">New Release</span>
+          <h2>Aorus Pro 16 Liquid Extreme</h2>
+          <p>Powered by Intel i9 14th Gen and NVIDIA RTX 4080. Windforce liquid-chamber cooling. Built for creators and competitive gamers.</p>
+          <a href="product.html?id=lap-01" class="btn btn-primary">Build Your Rig <i data-lucide="arrow-right" style="width:16px; height:16px;"></i></a>
+        </div>
+      </div>
+
+      <!-- Slide 2: Desktops -->
+      <div class="hero-slide" id="hero-slide-2">
+        <div class="hero-slide-content">
+          <span class="badge badge-new" style="margin-bottom: var(--space-sm);">Masterpiece</span>
+          <h2>Chronos Custom Gaming Tower</h2>
+          <p>Full hardline custom liquid loop desktop. Ryzen 9 7950X3D and liquid-cooled RTX 4090. A work of art in carbon fiber and glass.</p>
+          <a href="product.html?id=desk-01" class="btn btn-primary">Customize System <i data-lucide="arrow-right" style="width:16px; height:16px;"></i></a>
+        </div>
+      </div>
+
+      <!-- Slide 3: Accessories -->
+      <div class="hero-slide" id="hero-slide-3">
+        <div class="hero-slide-content">
+          <span class="badge badge-used" style="margin-bottom: var(--space-sm);">Refined Typing</span>
+          <h2>NamComp Aegis Keyboard</h2>
+          <p>CNC-machined solid brass base-plate mechanical typing masterpiece. Krytox lubed gold tactile switches. Amber backlighting.</p>
+          <a href="product.html?id=acc-01" class="btn btn-primary">Order Keyboard <i data-lucide="arrow-right" style="width:16px; height:16px;"></i></a>
+        </div>
+      </div>
+
+      <!-- Prev / Next arrows -->
+      <button class="hero-arrow hero-arrow-prev" id="hero-prev" aria-label="Previous slide">
+        <i data-lucide="chevron-left" style="width:24px; height:24px;"></i>
+      </button>
+      <button class="hero-arrow hero-arrow-next" id="hero-next" aria-label="Next slide">
+        <i data-lucide="chevron-right" style="width:24px; height:24px;"></i>
+      </button>
+
+      <!-- Progress-bar dot controls -->
+      <div class="hero-controls">
+        <button class="hero-dot active" aria-label="Slide 1"><span class="hero-dot-progress"></span></button>
+        <button class="hero-dot" aria-label="Slide 2"><span class="hero-dot-progress"></span></button>
+        <button class="hero-dot" aria-label="Slide 3"><span class="hero-dot-progress"></span></button>
+      </div>
+    </section>
+
+    <!-- Simulated Google AdSense Space -->
+    <div class="adsense-sim" id="ad-home-hero" data-page="index"></div>
+
+    <!-- 2. Product Categories -->
+    <section style="margin: var(--space-3xl) 0;">
+      <div class="section-header">
+        <h2 class="section-title">Shop by Category</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-lg);">
+        <a href="shop.html?category=laptops" class="category-card glass-panel glass-panel-hover">
+          <div class="category-icon-box"><i data-lucide="laptop" style="width:28px; height:28px;"></i></div>
+          <h3>Laptops</h3>
+          <p style="font-size:0.85rem; color:var(--color-secondary);">Gaming & Professional</p>
+        </a>
+        <a href="shop.html?category=desktops" class="category-card glass-panel glass-panel-hover">
+          <div class="category-icon-box"><i data-lucide="monitor" style="width:28px; height:28px;"></i></div>
+          <h3>Desktops</h3>
+          <p style="font-size:0.85rem; color:var(--color-secondary);">Custom Gaming Towers</p>
+        </a>
+        <a href="shop.html?category=components" class="category-card glass-panel glass-panel-hover">
+          <div class="category-icon-box"><i data-lucide="cpu" style="width:28px; height:28px;"></i></div>
+          <h3>PC Components</h3>
+          <p style="font-size:0.85rem; color:var(--color-secondary);">CPUs, GPUs & RAM</p>
+        </a>
+        <a href="shop.html?category=accessories" class="category-card glass-panel glass-panel-hover">
+          <div class="category-icon-box"><i data-lucide="keyboard" style="width:28px; height:28px;"></i></div>
+          <h3>Accessories</h3>
+          <p style="font-size:0.85rem; color:var(--color-secondary);">Mice, Keyboards & Audio</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 3. Countdown Deal of the Week -->
+    <section class="deal-section glass-panel">
+      <!-- Morphing background design -->
+      <div style="position: absolute; top: -50px; right: -50px; width: 300px; height: 300px; background: rgba(3, 83, 164, 0.08); filter: blur(50px); animation: morphBg 8s infinite alternate; z-index: 1;"></div>
+      <div class="deal-container" style="position:relative; z-index:2;">
+        <div class="deal-content">
+          <span class="badge badge-openbox" style="width:fit-content;">Flash Deal of the Week</span>
+          <h2 style="font-size: 2.25rem;">NamComp Aegis Mechanical Keyboard</h2>
+          <p>Experience mechanical keys at their finest. Crafted with a heavy solid-brass base plate and lubed gold tactile switches. Get it now at an exclusive N$50 discount.</p>
+          
+          <div style="margin: var(--space-md) 0;">
+            <span style="font-size: 1.1rem; color: var(--color-muted-foreground); text-decoration: line-through;">N$3,450.00</span>
+            <span style="font-size: 2.25rem; font-weight: 700; color: var(--color-accent); margin-left: 8px;">N$3,400.00</span>
+          </div>
+
+          <div class="countdown-wrapper">
+            <div class="countdown-box">
+              <span class="countdown-val" id="timer-hours">12</span>
+              <span class="countdown-lbl">Hrs</span>
+            </div>
+            <div class="countdown-box">
+              <span class="countdown-val" id="timer-mins">34</span>
+              <span class="countdown-lbl">Mins</span>
+            </div>
+            <div class="countdown-box">
+              <span class="countdown-val" id="timer-secs">56</span>
+              <span class="countdown-lbl">Secs</span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary add-to-cart-btn" data-id="acc-01" style="width: fit-content; margin-top: var(--space-sm);">Secure This Deal <i data-lucide="shopping-cart" style="width:16px; height:16px;"></i></button>
+        </div>
+        <div class="flex-center">
+          <img src="assets/mech_keyboard.png" alt="Aegis Keyboard Deal" style="border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); max-height: 320px; object-fit: cover;">
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Featured Products (Dynamic Catalog Grid) -->
+    <section style="margin: var(--space-3xl) 0;">
+      <div class="section-header flex-between">
+        <h2 class="section-title">Featured Selections</h2>
+        <a href="shop.html" class="btn btn-secondary" style="padding:6px 14px; font-size:0.85rem;">View All Catalog <i data-lucide="arrow-right" style="width:14px; height:14px;"></i></a>
+      </div>
+      <div class="product-grid" id="featured-products-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- 5. Latest Arrivals & Best Sellers (Condition Tabs) -->
+    <section style="margin: var(--space-3xl) 0;">
+      <div class="tab-headers" style="margin-top:0;">
+        <button class="tab-header-btn active" id="tab-btn-latest">Latest Arrivals</button>
+        <button class="tab-header-btn" id="tab-btn-used">Refurbished & Used Deals</button>
+      </div>
+
+      <div class="tab-content-pane active" id="pane-latest">
+        <div class="product-grid" id="latest-products-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+      <div class="tab-content-pane" id="pane-used">
+        <div class="product-grid" id="used-products-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Injected dynamically by app.js -->
+  <div id="footer-mount"></div>
+
+  <!-- Shared code imports -->
+  <script type="module" src="app.js"></script>
+
+  <!-- Homepage-specific Script -->
+  <script type="module">
+    import { StoreDb, CartState, WishlistState, CompareState } from './app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 0. Canvas Video Renderer to prevent IDM downloads
+      const video = document.getElementById('hero-video-source');
+      const canvas = document.getElementById('hero-canvas');
+      if (video && canvas) {
+        const ctx = canvas.getContext('2d');
+        let drawFrameId;
+
+        const drawFrame = () => {
+          if (video.paused || video.ended) {
+            cancelAnimationFrame(drawFrameId);
+            return;
+          }
+          if (video.readyState >= 2) {
+            // Dynamically adjust canvas dimensions to match video dimensions once loaded
+            if (video.videoWidth > 0 && (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight)) {
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+            }
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          }
+          drawFrameId = requestAnimationFrame(drawFrame);
+        };
+
+        // Listen for video events to start/stop the drawing loop
+        video.addEventListener('play', () => {
+          cancelAnimationFrame(drawFrameId);
+          drawFrame();
+        });
+
+        video.addEventListener('pause', () => {
+          cancelAnimationFrame(drawFrameId);
+        });
+
+        video.addEventListener('ended', () => {
+          cancelAnimationFrame(drawFrameId);
+        });
+
+        // Trigger drawing if video is already playing or ready
+        if (!video.paused && !video.ended) {
+          drawFrame();
+        }
+
+        // Fallback explicit play trigger
+        video.play().catch(err => console.log("Autoplay state:", err));
+      }
+
+      // 1. Hero Slider Logic (video-backed)
+      const slides = document.querySelectorAll('.hero-slide');
+      const dots   = document.querySelectorAll('.hero-dot');
+      const prevBtn = document.getElementById('hero-prev');
+      const nextBtn = document.getElementById('hero-next');
+      const SLIDE_DURATION = 6000; // ms per slide
+      let currentSlide = 0;
+      let slideInterval;
+      let progressInterval;
+
+      function showSlide(index) {
+        // Remove active from all slides and dots
+        slides.forEach(s => s.classList.remove('active'));
+        dots.forEach(d => { d.classList.remove('active'); });
+
+        slides[index].classList.add('active');
+        dots[index].classList.add('active');
+        currentSlide = index;
+
+        // Restart progress bar animation
+        restartProgress();
+      }
+
+      function restartProgress() {
+        // Reset all progress bars
+        dots.forEach(d => {
+          const bar = d.querySelector('.hero-dot-progress');
+          if (bar) { bar.style.transition = 'none'; bar.style.width = '0%'; }
+        });
+        // Animate the active one
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const activeBar = dots[currentSlide]?.querySelector('.hero-dot-progress');
+            if (activeBar) {
+              activeBar.style.transition = `width ${SLIDE_DURATION}ms linear`;
+              activeBar.style.width = '100%';
+            }
+          });
+        });
+      }
+
+      function startSlider() {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(() => {
+          showSlide((currentSlide + 1) % slides.length);
+        }, SLIDE_DURATION);
+        restartProgress();
+      }
+
+      dots.forEach((dot, idx) => {
+        dot.addEventListener('click', () => {
+          clearInterval(slideInterval);
+          showSlide(idx);
+          startSlider();
+        });
+      });
+
+      prevBtn?.addEventListener('click', () => {
+        clearInterval(slideInterval);
+        showSlide((currentSlide - 1 + slides.length) % slides.length);
+        startSlider();
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        clearInterval(slideInterval);
+        showSlide((currentSlide + 1) % slides.length);
+        startSlider();
+      });
+
+      startSlider();
+
+      // 2. Countdown Timer
+      let timeRemaining = 12 * 60 * 60 + 34 * 60 + 56; // 12 hours seed
+      const hoursEl = document.getElementById('timer-hours');
+      const minsEl = document.getElementById('timer-mins');
+      const secsEl = document.getElementById('timer-secs');
+
+      function tickTimer() {
+        if (timeRemaining <= 0) {
+          timeRemaining = 24 * 60 * 60; // Reset to 24h
+        }
+        timeRemaining--;
+
+        const hrs = Math.floor(timeRemaining / 3600);
+        const mins = Math.floor((timeRemaining % 3600) / 60);
+        const secs = timeRemaining % 60;
+
+        if (hoursEl) hoursEl.textContent = String(hrs).padStart(2, '0');
+        if (minsEl) minsEl.textContent = String(mins).padStart(2, '0');
+        if (secsEl) secsEl.textContent = String(secs).padStart(2, '0');
+      }
+
+      setInterval(tickTimer, 1000);
+
+      // 3. Render Catalog Products dynamically
+      const catalog = StoreDb.get('catalog') || [];
+      const wishlist = StoreDb.get('wishlist') || [];
+
+      function renderCard(p) {
+        const isWish = wishlist.includes(p.id) ? 'active' : '';
+        const condBadge = p.condition === 'New' 
+          ? `<span class="badge badge-new product-card-badge">New</span>`
+          : p.condition === 'Open Box'
+          ? `<span class="badge badge-openbox product-card-badge">Open Box</span>`
+          : `<span class="badge badge-used product-card-badge">Refurbished</span>`;
+
+        return `
+          <div class="product-card glass-panel animate-fade-in">
+            ${condBadge}
+            <button class="product-card-wishlist ${isWish}" data-id="${p.id}" aria-label="Add to wishlist"><i data-lucide="heart" style="width:18px; height:18px;"></i></button>
+            <div class="product-card-img-box">
+              <a href="product.html?id=${p.id}"><img src="${p.image}" alt="${p.name}" class="product-card-img"></a>
+            </div>
+            <div class="product-card-info">
+              <span class="product-card-category">${p.category.replace('_', ' ')}</span>
+              <a href="product.html?id=${p.id}"><h3 class="product-card-title">${p.name}</h3></a>
+              <div class="product-card-rating">
+                <i data-lucide="star" style="width:14px; height:14px; fill:currentColor;"></i>
+                <strong>${p.rating}</strong>
+                <span>(${p.reviews.length})</span>
+              </div>
+              <div class="product-card-footer">
+                <div class="product-card-price">N$${p.price.toLocaleString()}</div>
+                <div class="product-card-actions">
+                  <button class="btn btn-secondary btn-card-action compare-toggle-btn" data-id="${p.id}" title="Compare specifications"><i data-lucide="git-compare" style="width:16px; height:16px;"></i></button>
+                  <button class="btn btn-primary btn-card-action add-to-cart-btn" data-id="${p.id}" title="Add to shopping cart"><i data-lucide="shopping-cart" style="width:16px; height:16px;"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Bind dynamic product clicks
+      function bindActions(gridSelector) {
+        const grid = document.querySelector(gridSelector);
+        if (!grid) return;
+
+        grid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            CartState.addItem(pid, 1);
+            alert('Product added to shopping cart!');
+          });
+        });
+
+        grid.querySelectorAll('.product-card-wishlist').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            WishlistState.toggleItem(pid);
+            btn.classList.toggle('active');
+          });
+        });
+
+        grid.querySelectorAll('.compare-toggle-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            CompareState.addItem(pid);
+          });
+        });
+      }
+
+      // Featured Grid (Featured = true)
+      const featured = catalog.filter(p => p.featured).slice(0, 3);
+      const featuredGrid = document.getElementById('featured-products-grid');
+      if (featuredGrid) {
+        featuredGrid.innerHTML = featured.map(renderCard).join('');
+        bindActions('#featured-products-grid');
+      }
+
+      // Latest Grid (Latest = true)
+      const latest = catalog.filter(p => p.latest).slice(0, 4);
+      const latestGrid = document.getElementById('latest-products-grid');
+      if (latestGrid) {
+        latestGrid.innerHTML = latest.map(renderCard).join('');
+        bindActions('#latest-products-grid');
+      }
+
+      // Used/Refurbished Grid (Condition !== New)
+      const refurbished = catalog.filter(p => p.condition === 'Refurbished' || p.condition === 'Used/Refurbished' || p.condition === 'Open Box').slice(0, 4);
+      const usedGrid = document.getElementById('used-products-grid');
+      if (usedGrid) {
+        usedGrid.innerHTML = refurbished.map(renderCard).join('');
+        bindActions('#used-products-grid');
+      }
+
+      // 4. Tab Switches
+      const tabLatest = document.getElementById('tab-btn-latest');
+      const tabUsed = document.getElementById('tab-btn-used');
+      const paneLatest = document.getElementById('pane-latest');
+      const paneUsed = document.getElementById('pane-used');
+
+      tabLatest?.addEventListener('click', () => {
+        tabLatest.classList.add('active');
+        tabUsed.classList.remove('active');
+        paneLatest.classList.add('active');
+        paneUsed.classList.remove('active');
+      });
+
+      tabUsed?.addEventListener('click', () => {
+        tabUsed.classList.add('active');
+        tabLatest.classList.remove('active');
+        paneUsed.classList.add('active');
+        paneLatest.classList.remove('active');
+      });
+
+      // Bind Aegis Countdown deal button
+      document.querySelector('.deal-section .add-to-cart-btn')?.addEventListener('click', () => {
+        CartState.addItem('acc-01', 1);
+        alert('Product added to shopping cart!');
+      });
+
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

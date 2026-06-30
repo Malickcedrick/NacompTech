@@ -1,0 +1,17 @@
+{
+  "name": "namcomptech",
+  "version": "1.0.0",
+  "description": "Premium Electronics E-commerce Website",
+  "main": "app.js",
+  "scripts": {
+    "dev": "browser-sync start --config bs-config.json",
+    "build": "node build.js",
+    "start": "browser-sync start --config bs-config.json"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.2"
+  },
+  "dependencies": {},
+  "private": true
+}
+

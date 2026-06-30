@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Customer Care | NamCompTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* Custom map styling */
+    .sim-map-container {
+      width: 100%;
+      height: 320px;
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-muted);
+    }
+    .sim-map-bg {
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(var(--color-border) 20%, transparent 20%);
+      background-size: 20px 20px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .sim-map-marker {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+    }
+    .sim-map-pin {
+      width: 32px;
+      height: 32px;
+      background-color: var(--color-accent);
+      color: white;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(3, 83, 164, 0.4);
+      margin: 0 auto;
+    }
+    .sim-map-pin i {
+      transform: rotate(45deg);
+    }
+    .sim-map-popup {
+      background-color: var(--color-background);
+      padding: 10px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 8px;
+      border: 1px solid var(--color-border);
+    }
+    .sim-map-controls {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sim-map-ctrl-btn {
+      width: 32px;
+      height: 32px;
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .sim-map-ctrl-btn:hover {
+      background-color: var(--color-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Mount -->
+  <div id="header-mount"></div>
+
+  <main class="container" style="margin-bottom:var(--space-3xl);">
+    <div style="margin-top: var(--space-xl);">
+      <h1 class="text-gradient" style="font-size:2.25rem;">Contact Customer Support</h1>
+      <p style="color:var(--color-secondary);">Connect with our custom builds department or request orders updates.</p>
+    </div>
+
+    <div class="shop-layout" style="margin-top:var(--space-lg);">
+      <!-- Left side: Contact Form -->
+      <section class="glass-panel" style="padding:var(--space-xl); height:fit-content;">
+        <h3 style="margin-bottom:var(--space-md); border-bottom:1px solid var(--color-border); padding-bottom:var(--space-xs);">Submit Support Inquiry</h3>
+        
+        <form id="contact-support-form" style="display:flex; flex-direction:column; gap:var(--space-md);">
+          <div class="checkout-grid">
+            <div class="form-group">
+              <label class="form-label" for="contact-name">Full Name</label>
+              <input type="text" id="contact-name" class="form-input" required placeholder="Alex Smith">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contact-email">Email Address</label>
+              <input type="email" id="contact-email" class="form-input" required placeholder="alex.smith@example.com">
+            </div>
+            <div class="form-group grid-full" style="margin-bottom:0;">
+              <label class="form-label" for="contact-subject">Inquiry Subject</label>
+              <input type="text" id="contact-subject" class="form-input" required placeholder="Custom Rig Spec Request / Return Status">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="contact-message">Detailed Message</label>
+            <textarea id="contact-message" class="form-input" rows="6" required placeholder="Please outline your hardware requirements or order number..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;">Submit Inquiry</button>
+        </form>
+
+        <div id="contact-success-state" style="display:none; text-align:center; padding:var(--space-lg) 0;" class="animate-fade-in">
+          <div style="width:48px; height:48px; background-color:var(--color-success); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto var(--space-md) auto; font-size:1.5rem;">
+            <i data-lucide="check" style="width:24px; height:24px;"></i>
+          </div>
+          <h3>Inquiry Sent Successfully!</h3>
+          <p style="color:var(--color-secondary); font-size:0.9rem; margin-top:4px;">A support technician has been allocated. Ticket Reference: <strong>NCT-TKT-${Math.floor(1000 + Math.random() * 9000)}</strong>.<br>We will respond via email within 2-4 hours.</p>
+          <button class="btn btn-secondary" id="contact-reset-btn" style="margin-top:var(--space-md); padding:6px 16px; font-size:0.8rem; min-height:auto;">Submit Another Inquiry</button>
+        </div>
+      </section>
+
+      <!-- Right side: Office Info & Simulated Map -->
+      <aside style="display:flex; flex-direction:column; gap:var(--space-lg);">
+        <div class="glass-panel" style="padding:var(--space-lg);">
+          <h3 style="margin-bottom:var(--space-md); border-bottom:1px solid var(--color-border); padding-bottom:var(--space-xs);">Office Headquarters</h3>
+          
+          <div style="display:flex; flex-direction:column; gap:var(--space-md); font-size:0.9rem; margin-bottom:var(--space-md);">
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <i data-lucide="map-pin" style="color:var(--color-accent); width:18px; height:18px; flex-shrink:0; margin-top:2px;"></i>
+              <div>
+                <strong>NamCompTech Offices</strong>
+                <p style="color:var(--color-secondary);">Main HQ: Otjiwarongo, Namibia<br>Branch: Rundu, Namibia</p>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <i data-lucide="phone" style="color:var(--color-accent); width:18px; height:18px; flex-shrink:0; margin-top:2px;"></i>
+              <div>
+                <strong>Systems Support Hotline</strong>
+                <p style="color:var(--color-secondary);">+264 81 202 686<br>Mon-Fri, 8:00 AM - 5:00 PM CAT</p>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <i data-lucide="mail" style="color:var(--color-accent); width:18px; height:18px; flex-shrink:0; margin-top:2px;"></i>
+              <div>
+                <strong>E-mail Communications</strong>
+                <p style="color:var(--color-secondary);">namibiamtech@gmail.com</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simulated Leaflet Map Container -->
+          <div class="sim-map-container">
+            <div class="sim-map-bg" id="sim-map-dots"></div>
+            <div class="sim-map-controls">
+              <button class="sim-map-ctrl-btn" id="map-zoom-in" aria-label="Zoom in">+</button>
+              <button class="sim-map-ctrl-btn" id="map-zoom-out" aria-label="Zoom out">&minus;</button>
+            </div>
+            <div class="sim-map-marker">
+              <div class="sim-map-pin">
+                <i data-lucide="cpu" style="width:14px; height:14px;"></i>
+              </div>
+              <div class="sim-map-popup">
+                Namibia Offices
+                <div style="font-weight:400; font-size:0.65rem; color:var(--color-muted-foreground);">Zoom level: <span id="map-zoom-status">15x</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulated Ad block -->
+        <div class="adsense-sim" id="ad-contact-aside" data-page="contact"></div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Footer Mount -->
+  <div id="footer-mount"></div>
+
+  <script type="module" src="app.js"></script>
+
+  <!-- Contact Script -->
+  <script type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('contact-support-form');
+      const successState = document.getElementById('contact-success-state');
+      const resetBtn = document.getElementById('contact-reset-btn');
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Run validations (email syntax verified by HTML5 input type)
+        const email = document.getElementById('contact-email').value;
+        const msg = document.getElementById('contact-message').value;
+
+        if (msg.trim().length < 15) {
+          alert('Please provide a more detailed message (minimum 15 characters) so our support team can assist you.');
+          return;
+        }
+
+        form.style.display = 'none';
+        successState.style.display = 'block';
+        if (window.lucide) window.lucide.createIcons();
+      });
+
+      resetBtn.addEventListener('click', () => {
+        form.reset();
+        form.style.display = 'flex';
+        successState.style.display = 'none';
+      });
+
+      // Map zoom simulator
+      let zoomLevel = 15;
+      const zoomStatus = document.getElementById('map-zoom-status');
+      const mapDots = document.getElementById('sim-map-dots');
+
+      document.getElementById('map-zoom-in').addEventListener('click', () => {
+        if (zoomLevel < 18) {
+          zoomLevel++;
+          zoomStatus.textContent = `${zoomLevel}x`;
+          mapDots.style.backgroundSize = `${20 + (zoomLevel - 15) * 4}px ${20 + (zoomLevel - 15) * 4}px`;
+        }
+      });
+
+      document.getElementById('map-zoom-out').addEventListener('click', () => {
+        if (zoomLevel > 12) {
+          zoomLevel--;
+          zoomStatus.textContent = `${zoomLevel}x`;
+          mapDots.style.backgroundSize = `${20 - (15 - zoomLevel) * 3}px ${20 - (15 - zoomLevel) * 3}px`;
+        }
+      });
+
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

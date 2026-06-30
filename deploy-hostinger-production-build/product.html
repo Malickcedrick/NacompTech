@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details | NamCompTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Header Mount -->
+  <div id="header-mount"></div>
+
+  <main class="container">
+    <!-- Loader or Fallback -->
+    <div id="product-not-found" class="glass-panel" style="display:none; text-align:center; padding:var(--space-3xl); margin-top:var(--space-2xl);">
+      <i data-lucide="help-circle" style="width:48px; height:48px; color:var(--color-accent); margin:0 auto var(--space-md) auto;"></i>
+      <h2>Product Not Found</h2>
+      <p style="color:var(--color-secondary); margin-top:var(--space-sm);">The hardware unit you requested does not exist in our catalog.</p>
+      <a href="shop.html" class="btn btn-primary" style="margin-top:var(--space-lg);">Back to Shop</a>
+    </div>
+
+    <!-- Product Layout Container -->
+    <div id="product-container" style="display:none;">
+      <div style="margin: var(--space-lg) 0;">
+        <a href="shop.html" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; color:var(--color-secondary); font-size:0.9rem;">
+          <i data-lucide="arrow-left" style="width:14px; height:14px;"></i> Back to Shop
+        </a>
+      </div>
+
+      <div class="product-detail-layout">
+        <!-- Gallery -->
+        <div class="product-gallery">
+          <div class="product-gallery-main">
+            <img id="main-product-img" src="" alt="Main Product Image">
+          </div>
+          <div class="product-gallery-thumbs" id="product-gallery-thumbs-list">
+            <!-- Thumbs injected -->
+          </div>
+        </div>
+
+        <!-- Info details -->
+        <div class="product-detail-info">
+          <div>
+            <span class="badge badge-openbox" id="product-detail-cond-badge" style="margin-bottom:var(--space-xs);">NEW</span>
+            <span style="font-size:0.9rem; color:var(--color-muted-foreground); margin-left:var(--space-sm); font-weight:700;" id="product-detail-brand">Brand</span>
+          </div>
+          
+          <h1 class="product-detail-title" id="product-detail-title-txt">Product Name</h1>
+          
+          <div class="product-detail-meta">
+            <div class="product-card-rating" style="margin-bottom:0;">
+              <i data-lucide="star" style="width:16px; height:16px; fill:currentColor;"></i>
+              <strong id="product-detail-rating-num">4.9</strong>
+              <span id="product-detail-reviews-cnt">(2 reviews)</span>
+            </div>
+            <span style="color:var(--color-border);">|</span>
+            <span id="product-detail-stock-lbl" style="font-weight:700; color:var(--color-success);">In Stock (1 available)</span>
+          </div>
+
+          <hr style="border:none; border-top:1px solid var(--color-border); margin:var(--space-sm) 0;">
+
+          <div class="product-detail-price" id="product-detail-price-txt">N$0.00</div>
+
+          <p id="product-detail-desc" style="color:var(--color-secondary); line-height:1.6;"></p>
+
+          <div style="display:flex; flex-wrap:wrap; gap:var(--space-md); align-items:center; margin-top:var(--space-md);">
+            <div>
+              <label class="form-label" style="margin-bottom:6px;">Quantity</label>
+              <div class="qty-selector">
+                <button class="qty-btn" id="qty-minus-btn" aria-label="Decrease quantity">&minus;</button>
+                <input type="text" id="qty-input" class="qty-input" value="1" readonly>
+                <button class="qty-btn" id="qty-plus-btn" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:var(--space-sm); align-self:flex-end;">
+              <button class="btn btn-primary" id="add-cart-detail-btn" style="padding:12px 32px;"><i data-lucide="shopping-cart" style="width:18px; height:18px;"></i> Add to Cart</button>
+              <button class="btn btn-secondary btn-icon" id="wishlist-detail-btn" title="Add to wishlist"><i data-lucide="heart" style="width:20px; height:20px;"></i></button>
+              <button class="btn btn-secondary btn-icon" id="compare-detail-btn" title="Add to comparison"><i data-lucide="git-compare" style="width:20px; height:20px;"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Specs & Reviews Tabs -->
+      <section>
+        <div class="tab-headers">
+          <button class="tab-header-btn active" id="tab-btn-specs">Technical Specifications</button>
+          <button class="tab-header-btn" id="tab-btn-reviews">Customer Reviews</button>
+        </div>
+
+        <!-- 1. Technical Specs Pane -->
+        <div class="tab-content-pane active" id="pane-specs">
+          <div class="glass-panel" style="padding:var(--space-lg);">
+            <table class="spec-table" id="specs-table-body">
+              <!-- Specs injected -->
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. Reviews Pane -->
+        <div class="tab-content-pane" id="pane-reviews">
+          <div style="display:grid; grid-template-columns: 1fr; gap:var(--space-xl);">
+            <!-- Left side: Review Stats & Write Review -->
+            <div style="display:grid; grid-template-columns:1fr; gap:var(--space-lg);">
+              <div class="glass-panel" style="padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-md);">
+                <h3>Write a Review</h3>
+                <p style="font-size:0.85rem; color:var(--color-secondary);">Share your technical experience with this product.</p>
+                <form id="write-review-form">
+                  <div class="form-group">
+                    <label class="form-label" for="review-user-name">Your Name</label>
+                    <input type="text" id="review-user-name" class="form-input" required placeholder="John Doe">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="review-rating-select">Rating</label>
+                    <select id="review-rating-select" class="form-input" required>
+                      <option value="5">5 Stars - Outstanding</option>
+                      <option value="4">4 Stars - Very Good</option>
+                      <option value="3">3 Stars - Average</option>
+                      <option value="2">2 Stars - Below Average</option>
+                      <option value="1">1 Star - Poor Performance</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="review-title">Review Title</label>
+                    <input type="text" id="review-title" class="form-input" required placeholder="Best CPU on the market">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="review-text">Detailed Feedback</label>
+                    <textarea id="review-text" class="form-input" rows="4" required placeholder="Detail the temperatures, frame rates, or acoustics..."></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary" style="width:100%;">Submit Review</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Right side: Reviews list -->
+            <div class="glass-panel" style="padding:var(--space-lg); height:fit-content;">
+              <h3>Customer Feedback</h3>
+              <div id="reviews-list-container" style="margin-top:var(--space-md);">
+                <!-- Reviews injected -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Simulated AdSense Space -->
+      <div class="adsense-sim" id="ad-product-footer" data-page="product"></div>
+
+      <!-- Related Products -->
+      <section style="margin: var(--space-3xl) 0;">
+        <div class="section-header">
+          <h2 class="section-title">Related Hardware</h2>
+        </div>
+        <div class="product-grid" id="related-products-grid">
+          <!-- Injected dynamically -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer Mount -->
+  <div id="footer-mount"></div>
+
+  <script type="module" src="app.js"></script>
+  
+  <!-- Product-specific scripts -->
+  <script type="module">
+    import { StoreDb, CartState, WishlistState, CompareState } from './app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const catalog = StoreDb.get('catalog') || [];
+      
+      // 1. Get Product ID
+      const urlParams = new URLSearchParams(window.location.search);
+      const pid = urlParams.get('id');
+
+      const product = catalog.find(p => p.id === pid);
+
+      const notFoundPanel = document.getElementById('product-not-found');
+      const productPanel = document.getElementById('product-container');
+
+      if (!product) {
+        notFoundPanel.style.display = 'block';
+        if (window.lucide) window.lucide.createIcons();
+        return;
+      }
+
+      productPanel.style.display = 'block';
+
+      // 2. Populate product details
+      document.title = `${product.name} | NamCompTech`;
+      document.getElementById('main-product-img').src = product.image;
+      document.getElementById('main-product-img').alt = product.name;
+      document.getElementById('product-detail-brand').textContent = product.brand || 'NamComp';
+      document.getElementById('product-detail-title-txt').textContent = product.name;
+      document.getElementById('product-detail-price-txt').textContent = `N$${product.price.toLocaleString()}`;
+      document.getElementById('product-detail-desc').textContent = product.desc;
+      document.getElementById('product-detail-rating-num').textContent = product.rating;
+      document.getElementById('product-detail-reviews-cnt').textContent = `(${product.reviews.length} customer review(s))`;
+
+      const condBadge = document.getElementById('product-detail-cond-badge');
+      condBadge.textContent = product.condition;
+      if (product.condition === 'New') {
+        condBadge.className = 'badge badge-new';
+      } else if (product.condition === 'Open Box') {
+        condBadge.className = 'badge badge-openbox';
+      } else {
+        condBadge.className = 'badge badge-used';
+      }
+
+      const stockLbl = document.getElementById('product-detail-stock-lbl');
+      if (product.stock > 0) {
+        stockLbl.textContent = `In Stock (${product.stock} units available)`;
+        stockLbl.style.color = 'var(--color-success)';
+      } else {
+        stockLbl.textContent = 'Out of Stock';
+        stockLbl.style.color = 'var(--color-destructive)';
+        document.getElementById('add-cart-detail-btn').disabled = true;
+      }
+
+      // Thumbnails setup
+      const thumbsContainer = document.getElementById('product-gallery-thumbs-list');
+      // Seed thumbnails using current image and some mock variations
+      const thumbsHtml = `
+        <button class="product-gallery-thumb active"><img src="${product.image}" alt="View 1"></button>
+        <button class="product-gallery-thumb"><img src="${product.image}" alt="View 2" style="filter: hue-rotate(45deg);"></button>
+        <button class="product-gallery-thumb"><img src="${product.image}" alt="View 3" style="filter: hue-rotate(90deg);"></button>
+      `;
+      thumbsContainer.innerHTML = thumbsHtml;
+
+      // Handle Thumbnail Click
+      thumbsContainer.querySelectorAll('.product-gallery-thumb').forEach(thumb => {
+        thumb.addEventListener('click', () => {
+          thumbsContainer.querySelectorAll('.product-gallery-thumb').forEach(t => t.classList.remove('active'));
+          thumb.classList.add('active');
+          document.getElementById('main-product-img').src = thumb.querySelector('img').src;
+        });
+      });
+
+      // Wishlist detail state check
+      const wishlist = WishlistState.getItems();
+      const wishlistBtn = document.getElementById('wishlist-detail-btn');
+      if (wishlist.includes(product.id)) {
+        wishlistBtn.classList.add('active');
+        wishlistBtn.style.color = '#DC2626';
+      }
+
+      wishlistBtn.addEventListener('click', () => {
+        WishlistState.toggleItem(product.id);
+        const isActive = wishlistBtn.classList.toggle('active');
+        wishlistBtn.style.color = isActive ? '#DC2626' : 'var(--color-secondary)';
+      });
+
+      // Compare button click
+      document.getElementById('compare-detail-btn').addEventListener('click', () => {
+        CompareState.addItem(product.id);
+      });
+
+      // Specs Table Populate
+      const specsTable = document.getElementById('specs-table-body');
+      if (product.specs) {
+        specsTable.innerHTML = Object.entries(product.specs).map(([key, val]) => `
+          <tr>
+            <td>${key}</td>
+            <td>${val}</td>
+          </tr>
+        `).join('');
+      } else {
+        specsTable.innerHTML = `<tr><td colspan="2">No detailed specifications listed.</td></tr>`;
+      }
+
+      // Reviews render helper
+      function renderReviews() {
+        const rList = document.getElementById('reviews-list-container');
+        if (product.reviews.length === 0) {
+          rList.innerHTML = `<p style="color:var(--color-muted-foreground); text-align:center; padding:var(--space-md) 0;">No reviews written yet. Be the first to review!</p>`;
+          return;
+        }
+
+        rList.innerHTML = product.reviews.map(r => `
+          <div class="review-item animate-fade-in">
+            <div class="review-header">
+              <span class="review-user">${r.user} ${r.verified ? '<span class="review-verified-badge"><i data-lucide="check-circle" style="width:12px; height:12px; display:inline; vertical-align:middle;"></i> Verified Purchase</span>' : ''}</span>
+              <span style="font-size:0.8rem; color:var(--color-muted-foreground);">${r.date}</span>
+            </div>
+            <div class="product-card-rating" style="margin-bottom:6px;">
+              ${'<i data-lucide="star" style="width:12px; height:12px; fill:currentColor; color:#EAB308;"></i>'.repeat(r.rating)}
+              ${'<i data-lucide="star" style="width:12px; height:12px; color:var(--color-border);"></i>'.repeat(5 - r.rating)}
+            </div>
+            <h4 class="review-title">${r.title}</h4>
+            <p style="font-size:0.9rem; color:var(--color-secondary); line-height:1.5;">${r.text}</p>
+          </div>
+        `).join('');
+
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      renderReviews();
+
+      // Submit Review Logic
+      document.getElementById('write-review-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameVal = document.getElementById('review-user-name').value.trim();
+        const ratingVal = parseInt(document.getElementById('review-rating-select').value);
+        const titleVal = document.getElementById('review-title').value.trim();
+        const textVal = document.getElementById('review-text').value.trim();
+
+        const newReview = {
+          id: Date.now(),
+          user: nameVal,
+          rating: ratingVal,
+          date: new Date().toISOString().split('T')[0],
+          title: titleVal,
+          text: textVal,
+          verified: false
+        };
+
+        // Update product in catalog database
+        product.reviews.unshift(newReview);
+        // Recalculate rating average
+        const totalRating = product.reviews.reduce((sum, rev) => sum + rev.rating, 0);
+        product.rating = parseFloat((totalRating / product.reviews.length).toFixed(1));
+
+        // Save catalog back to db
+        const fullDb = StoreDb.get('catalog');
+        const dbIdx = fullDb.findIndex(p => p.id === product.id);
+        if (dbIdx > -1) {
+          fullDb[dbIdx] = product;
+          StoreDb.set('catalog', fullDb);
+        }
+
+        // Re-render
+        document.getElementById('product-detail-rating-num').textContent = product.rating;
+        document.getElementById('product-detail-reviews-cnt').textContent = `(${product.reviews.length} customer review(s))`;
+        renderReviews();
+        
+        // Reset form
+        e.target.reset();
+        alert('Thank you! Your simulated product review has been submitted successfully.');
+      });
+
+      // Quantity selector clicks
+      const qtyInput = document.getElementById('qty-input');
+      document.getElementById('qty-minus-btn').addEventListener('click', () => {
+        let val = parseInt(qtyInput.value);
+        if (val > 1) qtyInput.value = val - 1;
+      });
+
+      document.getElementById('qty-plus-btn').addEventListener('click', () => {
+        let val = parseInt(qtyInput.value);
+        if (val < product.stock) qtyInput.value = val + 1;
+      });
+
+      // Add to cart click
+      document.getElementById('add-cart-detail-btn').addEventListener('click', () => {
+        const qty = parseInt(qtyInput.value);
+        CartState.addItem(product.id, qty);
+        alert(`${qty} units of this product added to your cart.`);
+      });
+
+      // Tabs Logic
+      const btnSpecs = document.getElementById('tab-btn-specs');
+      const btnReviews = document.getElementById('tab-btn-reviews');
+      const paneSpecs = document.getElementById('pane-specs');
+      const paneReviews = document.getElementById('pane-reviews');
+
+      btnSpecs.addEventListener('click', () => {
+        btnSpecs.classList.add('active');
+        btnReviews.classList.remove('active');
+        paneSpecs.classList.add('active');
+        paneReviews.classList.remove('active');
+      });
+
+      btnReviews.addEventListener('click', () => {
+        btnReviews.classList.add('active');
+        btnSpecs.classList.remove('active');
+        paneReviews.classList.add('active');
+        paneSpecs.classList.remove('active');
+      });
+
+      // Related Products (Find 3 products in same category or brand, excluding current)
+      const related = catalog.filter(p => p.category === product.category && p.id !== product.id).slice(0, 3);
+      const relGrid = document.getElementById('related-products-grid');
+      
+      if (related.length > 0) {
+        relGrid.innerHTML = related.map(p => {
+          const isWish = wishlist.includes(p.id) ? 'active' : '';
+          const cond = p.condition === 'New' 
+            ? `<span class="badge badge-new product-card-badge">New</span>`
+            : p.condition === 'Open Box'
+            ? `<span class="badge badge-openbox product-card-badge">Open Box</span>`
+            : `<span class="badge badge-used product-card-badge">Refurbished</span>`;
+
+          return `
+            <div class="product-card glass-panel animate-fade-in">
+              ${cond}
+              <button class="product-card-wishlist ${isWish}" data-id="${p.id}" aria-label="Add to wishlist"><i data-lucide="heart" style="width:18px; height:18px;"></i></button>
+              <div class="product-card-img-box">
+                <a href="product.html?id=${p.id}"><img src="${p.image}" alt="${p.name}" class="product-card-img"></a>
+              </div>
+              <div class="product-card-info">
+                <span class="product-card-category">${p.category.toUpperCase()}</span>
+                <a href="product.html?id=${p.id}"><h3 class="product-card-title">${p.name}</h3></a>
+                <div class="product-card-rating">
+                  <i data-lucide="star" style="width:14px; height:14px; fill:currentColor;"></i>
+                  <strong>${p.rating}</strong>
+                  <span>(${p.reviews.length})</span>
+                </div>
+                <div class="product-card-footer">
+                  <div class="product-card-price">N$${p.price.toLocaleString()}</div>
+                  <div class="product-card-actions">
+                    <button class="btn btn-secondary btn-card-action compare-toggle-btn" data-id="${p.id}" title="Compare specifications"><i data-lucide="git-compare" style="width:16px; height:16px;"></i></button>
+                    <button class="btn btn-primary btn-card-action add-to-cart-btn" data-id="${p.id}" title="Add to shopping cart"><i data-lucide="shopping-cart" style="width:16px; height:16px;"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Bind related products actions
+        relGrid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            CartState.addItem(btn.getAttribute('data-id'), 1);
+            alert('Product added to shopping cart!');
+          });
+        });
+
+        relGrid.querySelectorAll('.product-card-wishlist').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            WishlistState.toggleItem(pid);
+            btn.classList.toggle('active');
+          });
+        });
+
+        relGrid.querySelectorAll('.compare-toggle-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-id');
+            CompareState.addItem(pid);
+          });
+        });
+      } else {
+        relGrid.innerHTML = `<p style="color:var(--color-muted-foreground); grid-column: 1 / -1; text-align:center;">No related items found.</p>`;
+      }
+
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

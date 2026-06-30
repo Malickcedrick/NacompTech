@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merchant Admin Portal | NamCompTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js for beautiful analytics visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Header Mount -->
+  <div id="header-mount"></div>
+
+  <main class="container" style="margin-bottom:var(--space-3xl);">
+    <div style="margin-top: var(--space-xl);">
+      <h1 class="text-gradient" style="font-size:2.25rem;">Merchant Admin Dashboard</h1>
+      <p style="color:var(--color-secondary);">Manage system inventory, monitor sales analytics, fulfill customer orders, and configure simulated Google AdSense parameters.</p>
+    </div>
+
+    <div class="admin-layout" style="margin-top:var(--space-lg);">
+      <!-- 1. Left Sidebar Navigation -->
+      <aside class="admin-sidebar glass-panel">
+        <button class="admin-menu-btn active" data-target="pane-admin-overview"><i data-lucide="bar-chart-3" style="width:18px; height:18px;"></i> Overview</button>
+        <button class="admin-menu-btn" data-target="pane-admin-products"><i data-lucide="box" style="width:18px; height:18px;"></i> Product CRUD</button>
+        <button class="admin-menu-btn" data-target="pane-admin-inventory"><i data-lucide="package" style="width:18px; height:18px;"></i> Inventory Stock</button>
+        <button class="admin-menu-btn" data-target="pane-admin-orders"><i data-lucide="shopping-bag" style="width:18px; height:18px;"></i> Orders Manager</button>
+        <button class="admin-menu-btn" data-target="pane-admin-discounts"><i data-lucide="ticket" style="width:18px; height:18px;"></i> Promo Coupons</button>
+        <button class="admin-menu-btn" data-target="pane-admin-ads"><i data-lucide="layout" style="width:18px; height:18px;"></i> Google AdSense</button>
+      </aside>
+
+      <!-- 2. Right Main Panes -->
+      <section>
+        <!-- A. Overview Pane -->
+        <div class="admin-pane active" id="pane-admin-overview">
+          <!-- Metric Cards -->
+          <div class="admin-analytics-grid">
+            <div class="metric-card glass-panel">
+              <span class="metric-title">Gross Revenue</span>
+              <span class="metric-val" id="metric-sales">NN$0.00</span>
+              <span class="metric-diff positive"><i data-lucide="arrow-up-right" style="width:12px; height:12px; display:inline;"></i> +14.2%</span>
+            </div>
+            <div class="metric-card glass-panel">
+              <span class="metric-title">Orders Received</span>
+              <span class="metric-val" id="metric-orders">0</span>
+              <span class="metric-diff positive"><i data-lucide="arrow-up-right" style="width:12px; height:12px; display:inline;"></i> +8.1%</span>
+            </div>
+            <div class="metric-card glass-panel">
+              <span class="metric-title">Average Order Value</span>
+              <span class="metric-val" id="metric-aov">NN$0.00</span>
+              <span class="metric-diff negative"><i data-lucide="arrow-down-right" style="width:12px; height:12px; display:inline;"></i> -1.5%</span>
+            </div>
+            <div class="metric-card glass-panel">
+              <span class="metric-title">AdSense CPC Revenue</span>
+              <span class="metric-val" id="metric-ads-revenue">NN$0.00</span>
+              <span class="metric-diff positive"><i data-lucide="arrow-up-right" style="width:12px; height:12px; display:inline;"></i> +24.8%</span>
+            </div>
+          </div>
+
+          <!-- Sales Chart Area -->
+          <div class="glass-panel" style="padding:var(--space-lg); margin-bottom:var(--space-xl);">
+            <h3>Sales & Google Ads Performance Trends</h3>
+            <div class="chart-container" style="margin-top:var(--space-md);">
+              <canvas id="salesTrendsChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- B. Products CRUD Pane -->
+        <div class="admin-pane" id="pane-admin-products">
+          <div class="glass-panel" style="padding:var(--space-lg);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:var(--space-sm); margin-bottom:var(--space-md);">
+              <h3>Product Database CRUD</h3>
+              <button class="btn btn-primary" id="admin-add-product-trigger" style="padding:6px 14px; font-size:0.8rem; min-height:auto;"><i data-lucide="plus" style="width:14px; height:14px;"></i> Add Product</button>
+            </div>
+            <div class="cart-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Item ID</th>
+                    <th>Product Details</th>
+                    <th>Category</th>
+                    <th>Condition</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Featured</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="crud-table-body">
+                  <!-- Injected -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- C. Inventory Stock Pane -->
+        <div class="admin-pane" id="pane-admin-inventory">
+          <div class="glass-panel" style="padding:var(--space-lg);">
+            <h3 style="border-bottom:1px solid var(--color-border); padding-bottom:var(--space-sm); margin-bottom:var(--space-md);">Inventory Control Panel</h3>
+            <div class="cart-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Current Stock</th>
+                    <th>Stock Alert Status</th>
+                    <th>Action (Restock Quantity)</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-table-body">
+                  <!-- Injected -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- D. Orders Manager Pane -->
+        <div class="admin-pane" id="pane-admin-orders">
+          <div class="glass-panel" style="padding:var(--space-lg);">
+            <h3 style="border-bottom:1px solid var(--color-border); padding-bottom:var(--space-sm); margin-bottom:var(--space-md);">Order Fulfillment Logs</h3>
+            <div class="cart-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order Ref</th>
+                    <th>Date</th>
+                    <th>Customer Contact</th>
+                    <th>Total Charge</th>
+                    <th>Status Badge</th>
+                    <th>Update Fulfillment</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-orders-table-body">
+                  <!-- Injected -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- E. Promo Coupons Pane -->
+        <div class="admin-pane" id="pane-admin-discounts">
+          <div class="glass-panel" style="padding:var(--space-lg); display:grid; grid-template-columns:1fr; gap:var(--space-lg);">
+            <!-- Create coupon -->
+            <div>
+              <h3 style="border-bottom:1px solid var(--color-border); padding-bottom:var(--space-sm); margin-bottom:var(--space-md);">Create Promotional Coupon</h3>
+              <form id="create-coupon-form" style="display:grid; grid-template-columns:1fr; gap:var(--space-sm); max-width:480px;">
+                <div class="form-group">
+                  <label class="form-label" for="coupon-code">Coupon Code (Uppercase)</label>
+                  <input type="text" id="coupon-code" class="form-input" required placeholder="OFF20">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md);">
+                  <div class="form-group">
+                    <label class="form-label" for="coupon-type">Discount Type</label>
+                    <select id="coupon-type" class="form-input" required>
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="fixed">Fixed Amount (N$)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="coupon-value">Discount Value</label>
+                    <input type="number" id="coupon-value" class="form-input" required min="1" placeholder="20">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="coupon-min">Minimum Cart Subtotal Required (Optional)</label>
+                  <input type="number" id="coupon-min" class="form-input" min="0" placeholder="0">
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                  <input type="checkbox" id="coupon-freeship" class="filter-checkbox" style="width:16px; height:16px;">
+                  <label class="form-label" for="coupon-freeship" style="margin-bottom:0; cursor:pointer;">Coupon grants Free Shipping</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Coupon</button>
+              </form>
+            </div>
+
+            <!-- List coupons -->
+            <div>
+              <h3 style="border-bottom:1px solid var(--color-border); padding-bottom:var(--space-sm); margin-bottom:var(--space-md);">Active Coupons</h3>
+              <div class="cart-table-wrapper">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Type</th>
+                      <th>Value</th>
+                      <th>Description</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="coupons-table-body">
+                    <!-- Injected -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F. Google AdSense Manager Pane -->
+        <div class="admin-pane" id="pane-admin-ads">
+          <div class="glass-panel" style="padding:var(--space-lg); display:grid; grid-template-columns:1fr; gap:var(--space-xl);">
+            <!-- Stats -->
+            <div>
+              <h3 style="border-bottom:1px solid var(--color-border); padding-bottom:var(--space-sm); margin-bottom:var(--space-md);">Simulated AdSense Revenue Summary</h3>
+              <div class="admin-analytics-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                <div class="metric-card glass-panel" style="box-shadow:none; border-color:var(--color-border);">
+                  <span class="metric-title">Impressions</span>
+                  <span class="metric-val" id="ads-stat-impressions">0</span>
+                </div>
+                <div class="metric-card glass-panel" style="box-shadow:none; border-color:var(--color-border);">
+                  <span class="metric-title">Clicks Recorded</span>
+                  <span class="metric-val" id="ads-stat-clicks">0</span>
+                </div>
+                <div class="metric-card glass-panel" style="box-shadow:none; border-color:var(--color-border);">
+                  <span class="metric-title">Avg. Click-Through Rate (CTR)</span>
+                  <span class="metric-val" id="ads-stat-ctr">0.00%</span>
+                </div>
+                <div class="metric-card glass-panel" style="box-shadow:none; border-color:var(--color-border);">
+                  <span class="metric-title">CPC Income</span>
+                  <span class="metric-val" id="ads-stat-revenue">NN$0.00</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Configurations -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:var(--space-sm); margin-bottom:var(--space-md);">
+                <h3>Ad Placement Configurations</h3>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <label class="form-label" style="margin-bottom:0; font-weight:700; cursor:pointer;" for="ad-global-toggle">Enable Adsense Globally</label>
+                  <input type="checkbox" id="ad-global-toggle" class="filter-checkbox" style="width:18px; height:18px;">
+                </div>
+              </div>
+              
+              <div class="cart-table-wrapper">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Ad Zone ID</th>
+                      <th>Target Page</th>
+                      <th>Visual Position</th>
+                      <th>Format Size</th>
+                      <th>Status (Active)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ad-zones-table-body">
+                    <!-- Injected -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- CRUD ADD/EDIT MODAL OVERLAY -->
+  <div class="modal-overlay" id="crud-modal-overlay">
+    <div class="modal-box glass-panel" style="max-width:550px; width:95%;">
+      <button class="modal-close" id="crud-modal-close-btn" aria-label="Close form"><i data-lucide="x" style="width:24px; height:24px;"></i></button>
+      <h2 id="crud-modal-title" class="text-gradient">Add Hardware Item</h2>
+      
+      <form id="crud-product-form" style="display:flex; flex-direction:column; gap:var(--space-sm); margin-top:var(--space-md);">
+        <input type="hidden" id="crud-pid">
+        
+        <div class="form-group">
+          <label class="form-label" for="crud-name">Product Name</label>
+          <input type="text" id="crud-name" class="form-input" required placeholder="Corsair Dominator Titanium">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md);">
+          <div class="form-group">
+            <label class="form-label" for="crud-category">Category</label>
+            <select id="crud-category" class="form-input" required>
+              <option value="laptops">Laptops</option>
+              <option value="desktops">Desktops & Towers</option>
+              <option value="components">PC Components</option>
+              <option value="accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="crud-condition">Condition</label>
+            <select id="crud-condition" class="form-input" required>
+              <option value="New">New</option>
+              <option value="Open Box">Open Box</option>
+              <option value="Refurbished">Refurbished/Used</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md);">
+          <div class="form-group">
+            <label class="form-label" for="crud-price">Price (N$)</label>
+            <input type="number" id="crud-price" class="form-input" required step="0.01" min="1" placeholder="199.99">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="crud-stock">Stock Quantity</label>
+            <input type="number" id="crud-stock" class="form-input" required min="0" placeholder="10">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md);">
+          <div class="form-group">
+            <label class="form-label" for="crud-brand">Brand</label>
+            <input type="text" id="crud-brand" class="form-input" required placeholder="Corsair">
+          </div>
+          <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-top:28px;">
+            <input type="checkbox" id="crud-featured" class="filter-checkbox" style="width:16px; height:16px;">
+            <label class="form-label" for="crud-featured" style="margin-bottom:0; cursor:pointer;">Mark Featured</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="crud-desc">Description Summary</label>
+          <textarea id="crud-desc" class="form-input" rows="3" required placeholder="Brief specifications summary..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="crud-image-input">Product Image</label>
+          <input type="file" id="crud-image-input" class="form-input" accept="image/png, image/jpeg, image/jpg, image/webp" style="padding: 6px;">
+          <div id="crud-image-preview-container" style="display:none; margin-top:10px; align-items:center; gap:10px;">
+            <img id="crud-image-preview" src="" alt="Selected Preview" style="width:60px; height:60px; object-fit:cover; border-radius:var(--radius-sm); border:1px solid var(--color-border);">
+            <span style="font-size:0.75rem; color:var(--color-secondary);">Image loaded successfully</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top:var(--space-sm);">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer Mount -->
+  <div id="footer-mount"></div>
+
+  <script type="module" src="app.js"></script>
+
+  <!-- Admin logic script -->
+  <script type="module">
+    import { StoreDb } from './app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Pane Switching Logic
+      const buttons = document.querySelectorAll('.admin-sidebar .admin-menu-btn');
+      const panes = document.querySelectorAll('.admin-pane');
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          panes.forEach(p => p.classList.remove('active'));
+          
+          btn.classList.add('active');
+          const target = btn.getAttribute('data-target');
+          document.getElementById(target).classList.add('active');
+        });
+      });
+
+      // 2. Fetch Data State
+      let catalog = StoreDb.get('catalog') || [];
+      let orders = StoreDb.get('orders') || [];
+      let coupons = StoreDb.get('coupons') || [];
+      let adsConfig = StoreDb.get('ads_config') || {};
+
+      // 3. Render Analytics Overview
+      function renderOverviewMetrics() {
+        const totalSales = orders.reduce((sum, o) => sum + o.total, 0);
+        const totalOrders = orders.length;
+        const aov = totalOrders > 0 ? totalSales / totalOrders : 0;
+
+        document.getElementById('metric-sales').textContent = `N$${totalSales.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        document.getElementById('metric-orders').textContent = totalOrders;
+        document.getElementById('metric-aov').textContent = `N$${aov.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        document.getElementById('metric-ads-revenue').textContent = `N$${adsConfig.revenue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+      }
+
+      // Initialize Chart.js
+      let trendsChart;
+      function renderAnalyticsTrends() {
+        const ctx = document.getElementById('salesTrendsChart').getContext('2d');
+        if (trendsChart) trendsChart.destroy();
+        
+        // Mock data dates
+        const labels = ['Jun 22', 'Jun 23', 'Jun 24', 'Jun 25', 'Jun 26', 'Jun 27 (Today)'];
+        // Compute last order sales
+        const salesData = [1200, 2400, 950, 2075.92, 575.59, orders.reduce((sum, o) => sum + o.total, 0)];
+        const adsData = [12.45, 24.10, 18.25, 45.60, 68.30, adsConfig.revenue];
+
+        trendsChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Gross Sales Revenue (N$)',
+                data: salesData,
+                borderColor: '#0353A4',
+                backgroundColor: 'rgba(3, 83, 164, 0.1)',
+                borderWidth: 3,
+                tension: 0.3,
+                fill: true,
+                yAxisID: 'y'
+              },
+              {
+                label: 'Simulated AdSense Revenue (N$)',
+                data: adsData,
+                borderColor: '#44403C',
+                backgroundColor: 'rgba(68, 64, 60, 0.05)',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.3,
+                fill: false,
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                grid: { color: 'rgba(0,0,0,0.05)' }
+              },
+              y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                grid: { drawOnChartArea: false }
+              }
+            }
+          }
+        });
+      }
+
+      // 4. Products CRUD Table Rendering
+      const crudBody = document.getElementById('crud-table-body');
+      const crudModal = document.getElementById('crud-modal-overlay');
+      const crudModalClose = document.getElementById('crud-modal-close-btn');
+      const crudForm = document.getElementById('crud-product-form');
+
+      function renderCrudTable() {
+        crudBody.innerHTML = catalog.map(p => `
+          <tr class="animate-fade-in">
+            <td><strong>${p.id}</strong></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <img src="${p.image}" alt="${p.name}" style="width:36px; height:36px; object-fit:cover; border-radius:var(--radius-sm);">
+                <div>
+                  <span style="font-weight:700; display:block;">${p.name}</span>
+                  <span style="font-size:0.75rem; color:var(--color-muted-foreground);">${p.brand}</span>
+                </div>
+              </div>
+            </td>
+            <td>${p.category.toUpperCase()}</td>
+            <td><span class="badge ${p.condition === 'New' ? 'badge-new' : 'badge-used'}">${p.condition}</span></td>
+            <td><strong>N$${p.price.toLocaleString()}</strong></td>
+            <td>${p.stock}</td>
+            <td>${p.featured ? '<i data-lucide="check" style="color:var(--color-success); width:16px; height:16px;"></i>' : '&mdash;'}</td>
+            <td>
+              <div style="display:flex; gap:4px;">
+                <button class="btn btn-secondary edit-product-btn" data-id="${p.id}" style="padding:4px 8px; font-size:0.7rem; min-height:auto;">Edit</button>
+                <button class="btn btn-secondary delete-product-btn" data-id="${p.id}" style="padding:4px 8px; font-size:0.7rem; color:var(--color-destructive); border-color:var(--color-destructive); min-height:auto;">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+        if (window.lucide) window.lucide.createIcons();
+
+        // Bind delete buttons
+        crudBody.querySelectorAll('.delete-product-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            if (confirm(`Are you sure you want to delete product "${id}" from the database?`)) {
+              catalog = catalog.filter(p => p.id !== id);
+              StoreDb.set('catalog', catalog);
+              renderAllPanes();
+            }
+          });
+        });
+
+        // Bind edit buttons
+        crudBody.querySelectorAll('.edit-product-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const prod = catalog.find(p => p.id === id);
+            if (prod) openCrudModal(prod);
+          });
+        });
+      }
+
+      // Image upload and preview logic
+      let uploadedImageBase64 = null;
+      const imageInput = document.getElementById('crud-image-input');
+      const previewContainer = document.getElementById('crud-image-preview-container');
+      const previewImg = document.getElementById('crud-image-preview');
+
+      imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            uploadedImageBase64 = event.target.result;
+            previewImg.src = uploadedImageBase64;
+            previewContainer.style.display = 'flex';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          uploadedImageBase64 = null;
+          previewContainer.style.display = 'none';
+          previewImg.src = '';
+        }
+      });
+
+      // Add Product Trigger
+      document.getElementById('admin-add-product-trigger').addEventListener('click', () => {
+        openCrudModal(null);
+      });
+
+      crudModalClose.addEventListener('click', () => {
+        crudModal.classList.remove('active');
+      });
+
+      function openCrudModal(prod) {
+        // Clear image upload state
+        imageInput.value = '';
+        uploadedImageBase64 = null;
+
+        if (prod) {
+          // Edit Mode
+          document.getElementById('crud-modal-title').textContent = `Edit Product (${prod.id})`;
+          document.getElementById('crud-pid').value = prod.id;
+          document.getElementById('crud-name').value = prod.name;
+          document.getElementById('crud-category').value = prod.category;
+          document.getElementById('crud-condition').value = prod.condition;
+          document.getElementById('crud-price').value = prod.price;
+          document.getElementById('crud-stock').value = prod.stock;
+          document.getElementById('crud-brand').value = prod.brand;
+          document.getElementById('crud-featured').checked = prod.featured;
+          document.getElementById('crud-desc').value = prod.desc;
+          
+          if (prod.image) {
+            previewImg.src = prod.image;
+            previewContainer.style.display = 'flex';
+            uploadedImageBase64 = prod.image;
+          } else {
+            previewContainer.style.display = 'none';
+            previewImg.src = '';
+          }
+        } else {
+          // Add Mode
+          document.getElementById('crud-modal-title').textContent = "Add Product to Database";
+          document.getElementById('crud-pid').value = '';
+          crudForm.reset();
+          previewContainer.style.display = 'none';
+          previewImg.src = '';
+        }
+        crudModal.classList.add('active');
+      }
+
+      // Form Save Product Handler
+      crudForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pid = document.getElementById('crud-pid').value;
+        const name = document.getElementById('crud-name').value.trim();
+        const category = document.getElementById('crud-category').value;
+        const condition = document.getElementById('crud-condition').value;
+        const price = parseFloat(document.getElementById('crud-price').value);
+        const stock = parseInt(document.getElementById('crud-stock').value);
+        const brand = document.getElementById('crud-brand').value.trim();
+        const featured = document.getElementById('crud-featured').checked;
+        const desc = document.getElementById('crud-desc').value.trim();
+
+        if (pid) {
+          // Save Edit
+          const existing = catalog.find(p => p.id === pid);
+          if (existing) {
+            existing.name = name;
+            existing.category = category;
+            existing.condition = condition;
+            existing.price = price;
+            existing.stock = stock;
+            existing.brand = brand;
+            existing.featured = featured;
+            existing.desc = desc;
+            if (uploadedImageBase64) {
+              existing.image = uploadedImageBase64;
+            }
+          }
+        } else {
+          // Add New
+          const newId = `${category.substring(0, 3)}-${Math.floor(10 + Math.random() * 90)}`;
+          const newProd = {
+            id: newId,
+            name,
+            category,
+            condition,
+            price,
+            stock,
+            image: uploadedImageBase64 || (category === 'laptops' ? 'assets/hero_laptop.png' : category === 'desktops' ? 'assets/desktop_pc.png' : 'assets/mech_keyboard.png'),
+            featured,
+            bestSeller: false,
+            latest: true,
+            brand,
+            desc,
+            specs: {
+              'Brand': brand,
+              'Warranty': '1 Year store warranty',
+              'Condition': condition
+            },
+            reviews: []
+          };
+          catalog.unshift(newProd);
+        }
+
+        StoreDb.set('catalog', catalog);
+        crudModal.classList.remove('active');
+        renderAllPanes();
+        alert('Database component saved successfully.');
+      });
+
+      // 5. Inventory Table Rendering
+      const invBody = document.getElementById('inventory-table-body');
+      function renderInventoryTable() {
+        invBody.innerHTML = catalog.map(p => {
+          let alertBadge = '<span class="badge badge-new" style="background-color:var(--color-success);">Healthy</span>';
+          if (p.stock === 0) {
+            alertBadge = '<span class="badge badge-used" style="background-color:var(--color-destructive);">Out of Stock</span>';
+          } else if (p.stock <= 5) {
+            alertBadge = '<span class="badge badge-openbox">Low Stock</span>';
+          }
+
+          return `
+            <tr class="animate-fade-in">
+              <td><strong>${p.id}</strong></td>
+              <td>${p.name}</td>
+              <td>${p.category.toUpperCase()}</td>
+              <td><strong>${p.stock} units</strong></td>
+              <td>${alertBadge}</td>
+              <td>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <input type="number" class="price-range-input qty-update-input" value="10" min="1" style="width:60px; padding:4px 6px;" data-id="${p.id}">
+                  <button class="btn btn-secondary restock-btn" data-id="${p.id}" style="padding:4px 10px; font-size:0.75rem; min-height:auto;">Restock</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Restock triggers
+        invBody.querySelectorAll('.restock-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const qtyInput = invBody.querySelector(`.qty-update-input[data-id="${id}"]`);
+            const amt = parseInt(qtyInput.value);
+
+            if (!isNaN(amt) && amt > 0) {
+              const prod = catalog.find(p => p.id === id);
+              if (prod) {
+                prod.stock += amt;
+                StoreDb.set('catalog', catalog);
+                renderAllPanes();
+                alert(`Stock replenished: +${amt} units for ${prod.name}`);
+              }
+            }
+          });
+        });
+      }
+
+      // 6. Orders Fulfillment Manager
+      const ordersBody = document.getElementById('admin-orders-table-body');
+      function renderOrdersTable() {
+        ordersBody.innerHTML = orders.map(ord => {
+          const dateStr = new Date(ord.date).toLocaleDateString();
+          return `
+            <tr class="animate-fade-in">
+              <td><strong>${ord.id}</strong></td>
+              <td>${dateStr}</td>
+              <td>
+                <div style="font-size:0.85rem; line-height:1.2;">
+                  <strong>${ord.customer.name}</strong><br>
+                  <span style="color:var(--color-muted-foreground);">${ord.customer.email}</span>
+                </div>
+              </td>
+              <td><strong>N$${ord.total.toLocaleString(undefined, {minimumFractionDigits:2})}</strong></td>
+              <td>
+                <span class="badge ${ord.status === 'Pending' ? 'badge-new' : ord.status === 'Shipped' ? 'badge-openbox' : 'badge-used'}">${ord.status}</span>
+              </td>
+              <td>
+                <select class="shop-sort-select admin-order-status-select" data-id="${ord.id}" style="padding: 4px 8px; font-size:0.75rem;">
+                  <option value="Pending" ${ord.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                  <option value="Shipped" ${ord.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                  <option value="Delivered" ${ord.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                </select>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Bind status changes
+        ordersBody.querySelectorAll('.admin-order-status-select').forEach(sel => {
+          sel.addEventListener('change', () => {
+            const id = sel.getAttribute('data-id');
+            const newStatus = sel.value;
+            const ord = orders.find(o => o.id === id);
+            if (ord) {
+              ord.status = newStatus;
+              StoreDb.set('orders', orders);
+              renderAllPanes();
+              alert(`Order ${id} status updated to: ${newStatus}`);
+            }
+          });
+        });
+      }
+
+      // 7. Coupon Codes Creator
+      const couponsBody = document.getElementById('coupons-table-body');
+      const couponForm = document.getElementById('create-coupon-form');
+
+      function renderCouponsTable() {
+        couponsBody.innerHTML = coupons.map(c => `
+          <tr class="animate-fade-in">
+            <td><strong>${c.code}</strong></td>
+            <td>${c.discountType.toUpperCase()}</td>
+            <td><strong>${c.discountType === 'percentage' ? `${c.discountValue}%` : `N$${c.discountValue}`}</strong></td>
+            <td>${c.desc}</td>
+            <td>
+              <button class="btn btn-secondary delete-coupon-btn" data-code="${c.code}" style="padding:4px 8px; font-size:0.7rem; color:var(--color-destructive); border-color:var(--color-destructive); min-height:auto;">Remove</button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Delete Coupon
+        couponsBody.querySelectorAll('.delete-coupon-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const code = btn.getAttribute('data-code');
+            if (confirm(`Delete coupon "${code}"?`)) {
+              coupons = coupons.filter(c => c.code !== code);
+              StoreDb.set('coupons', coupons);
+              renderAllPanes();
+            }
+          });
+        });
+      }
+
+      couponForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = document.getElementById('coupon-code').value.trim().toUpperCase();
+        const type = document.getElementById('coupon-type').value;
+        const val = parseInt(document.getElementById('coupon-value').value);
+        const minVal = parseInt(document.getElementById('coupon-min').value) || 0;
+        const freeShip = document.getElementById('coupon-freeship').checked;
+
+        const exists = coupons.find(c => c.code === code);
+        if (exists) {
+          alert('A coupon with this code already exists.');
+          return;
+        }
+
+        const newCoupon = {
+          code,
+          discountType: type,
+          discountValue: val,
+          minCart: minVal > 0 ? minVal : undefined,
+          isFreeShipping: freeShip ? true : undefined,
+          desc: `${val}${type === 'percentage' ? '% Off' : ' Off'} ${freeShip ? ' & Free Shipping' : ''}`
+        };
+
+        coupons.push(newCoupon);
+        StoreDb.set('coupons', coupons);
+        renderAllPanes();
+        couponForm.reset();
+        alert(`Promo coupon ${code} created.`);
+      });
+
+      // 8. Simulated AdSense Panel Controls
+      function renderAdSenseSettings() {
+        document.getElementById('ads-stat-impressions').textContent = adsConfig.impressions;
+        document.getElementById('ads-stat-clicks').textContent = adsConfig.clicks;
+        
+        const ctr = adsConfig.impressions > 0 ? (adsConfig.clicks / adsConfig.impressions * 100) : 0;
+        document.getElementById('ads-stat-ctr').textContent = `${ctr.toFixed(2)}%`;
+        document.getElementById('ads-stat-revenue').textContent = `N$${adsConfig.revenue.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+
+        // Global switch
+        const globalToggle = document.getElementById('ad-global-toggle');
+        globalToggle.checked = adsConfig.enabled;
+
+        // Render zones list
+        const zonesBody = document.getElementById('ad-zones-table-body');
+        zonesBody.innerHTML = adsConfig.adZones.map(zone => `
+          <tr class="animate-fade-in">
+            <td><strong>${zone.id}</strong></td>
+            <td>${zone.page.toUpperCase()}</td>
+            <td>${zone.position}</td>
+            <td>${zone.format}</td>
+            <td>
+              <input type="checkbox" class="filter-checkbox zone-toggle-chk" data-id="${zone.id}" ${zone.active ? 'checked' : ''} style="width:16px; height:16px;">
+            </td>
+          </tr>
+        `).join('');
+
+        // Bind zone toggles
+        zonesBody.querySelectorAll('.zone-toggle-chk').forEach(chk => {
+          chk.addEventListener('change', () => {
+            const id = chk.getAttribute('data-id');
+            const zone = adsConfig.adZones.find(z => z.id === id);
+            if (zone) {
+              zone.active = chk.checked;
+              StoreDb.set('ads_config', adsConfig);
+              alert(`AdZone ${id} active status set to: ${chk.checked}`);
+            }
+          });
+        });
+      }
+
+      // Bind global AdSense toggle
+      document.getElementById('ad-global-toggle').addEventListener('change', (e) => {
+        adsConfig.enabled = e.target.checked;
+        StoreDb.set('ads_config', adsConfig);
+        alert(`Google AdSense advertising status set globally to: ${adsConfig.enabled}`);
+      });
+
+      // Combined Render Function
+      function renderAllPanes() {
+        catalog = StoreDb.get('catalog') || [];
+        orders = StoreDb.get('orders') || [];
+        coupons = StoreDb.get('coupons') || [];
+        adsConfig = StoreDb.get('ads_config') || {};
+
+        renderOverviewMetrics();
+        renderAnalyticsTrends();
+        renderCrudTable();
+        renderInventoryTable();
+        renderOrdersTable();
+        renderCouponsTable();
+        renderAdSenseSettings();
+      }
+
+      // Run
+      renderAllPanes();
+
+      // Listen for database updates from other windows/pages
+      window.addEventListener('nct_db_update', (e) => {
+        renderAllPanes();
+      });
+    });
+  </script>
+</body>
+</html>

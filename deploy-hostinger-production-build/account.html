@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account | NamCompTech</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Header Mount -->
+  <div id="header-mount"></div>
+
+  <main class="container">
+    <div style="margin-top: var(--space-xl);">
+      <h1 class="text-gradient" style="font-size:2.25rem;">Customer Portal</h1>
+      <p style="color:var(--color-secondary);">Manage your shipping addresses, profile details, and track order fulfillment.</p>
+    </div>
+
+    <div class="shop-layout" style="margin-top:var(--space-lg);">
+      <!-- Left side: Profile Management -->
+      <aside class="filter-sidebar glass-panel" style="width:100%; min-width:unset; gap:var(--space-md);">
+        <h3 class="filter-section-title">My Profile</h3>
+        <form id="profile-edit-form" style="display:flex; flex-direction:column; gap:var(--space-sm);">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="profile-name">Full Name</label>
+            <input type="text" id="profile-name" class="form-input" required value="Alex Mercer">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="profile-email">Email Address</label>
+            <input type="email" id="profile-email" class="form-input" required value="alex.mercer@tech.com">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="profile-phone">Phone Number</label>
+            <input type="tel" id="profile-phone" class="form-input" required value="+1 (555) 123-4567">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="profile-address">Shipping Address</label>
+            <textarea id="profile-address" class="form-input" rows="3" required>Otjiwarongo, Namibia</textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:var(--space-sm); width:100%;">Save Changes</button>
+        </form>
+
+        <div style="border-top:1px solid var(--color-border); padding-top:var(--space-md); margin-top:var(--space-sm);">
+          <h4 style="font-size:0.9rem; margin-bottom:8px;">Exclusive Member Offers</h4>
+          <div class="glass-panel" style="padding:10px; font-size:0.75rem; background-color:var(--color-muted); display:flex; flex-direction:column; gap:4px;">
+            <div>Use coupon <strong>TECH15</strong> for 15% off site-wide.</div>
+            <div>Use coupon <strong>GOLDEN20</strong> to save 20% on rigs over N$1,500.</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right side: Order History -->
+      <section class="glass-panel" style="padding:var(--space-lg); height:fit-content;">
+        <h3 style="margin-bottom:var(--space-md); border-bottom: 1px solid var(--color-border); padding-bottom:var(--space-xs);">Purchase History</h3>
+        
+        <div class="cart-table-wrapper">
+          <table class="cart-table" id="orders-history-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Payment Method</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orders-history-body">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- No Orders Fallback -->
+        <div id="no-orders-msg" style="display:none; text-align:center; padding:var(--space-xl) 0; color:var(--color-secondary);">
+          <p>No orders placed yet. Add hardware to your cart and check out!</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 1. Order Detail Modal Overlay -->
+  <div class="modal-overlay" id="order-detail-modal">
+    <div class="modal-box glass-panel" style="max-width:600px; width:95%;">
+      <button class="modal-close" id="order-detail-close-btn" aria-label="Close details modal"><i data-lucide="x" style="width:24px; height:24px;"></i></button>
+      
+      <div style="border-bottom:1px solid var(--color-border); padding-bottom:6px; margin-bottom:12px; text-align:center; font-size:0.8rem; line-height:1.4;">
+        <strong style="display:block; font-size:0.95rem; color:var(--color-primary);">TAX INVOICE</strong>
+        <span style="color:var(--color-secondary);">Namibia Computer Technology Investment CC</span><br>
+        <span style="color:var(--color-secondary);">Reg No: CC/2014/14142 &bull; Offices: Otjiwarongo & Rundu</span>
+      </div>
+      <h2 id="modal-order-id" class="text-gradient" style="margin-bottom:var(--space-xs);">Order NCT-XXXXX</h2>
+      <div id="modal-order-date" style="font-size:0.85rem; color:var(--color-muted-foreground); margin-bottom:var(--space-md);">Date: July 2, 2026</div>
+
+      <!-- Shipping and payment summaries -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); font-size:0.85rem; margin-bottom:var(--space-md);">
+        <div>
+          <strong>Shipping Address:</strong>
+          <p id="modal-order-address" style="color:var(--color-secondary); margin-top:2px;">123 Lane...</p>
+        </div>
+        <div>
+          <strong>Payment details:</strong>
+          <p id="modal-order-payment" style="color:var(--color-secondary); margin-top:2px;">Credit Card</p>
+        </div>
+      </div>
+
+      <!-- Item list -->
+      <h4 style="border-bottom:1px solid var(--color-border); padding-bottom:4px; margin-bottom:var(--space-sm);">Purchased Items</h4>
+      <div id="modal-order-items-list" style="display:flex; flex-direction:column; gap:var(--space-sm); margin-bottom:var(--space-md);">
+        <!-- Items -->
+      </div>
+
+      <!-- Cost breakdown -->
+      <div style="border-top:1px solid var(--color-border); padding-top:var(--space-md); font-size:0.9rem;">
+        <div class="summary-row" style="margin-bottom:6px;">
+          <span>Subtotal</span>
+          <span id="modal-order-subtotal">NN$0.00</span>
+        </div>
+        <div class="summary-row" style="margin-bottom:6px; color:var(--color-success); font-weight:700;">
+          <span>Discount Applied</span>
+          <span id="modal-order-discount">-NN$0.00</span>
+        </div>
+        <div class="summary-row" style="margin-bottom:6px;">
+          <span>Shipping Fee</span>
+          <span id="modal-order-shipping">NN$0.00</span>
+        </div>
+        <div class="summary-row" style="margin-bottom:6px;">
+          <span>Tax</span>
+          <span id="modal-order-tax">NN$0.00</span>
+        </div>
+        <div class="summary-row total" style="margin-top:var(--space-sm); padding-top:var(--space-sm); font-size:1.15rem; font-weight:700;">
+          <span>Order Total</span>
+          <span id="modal-order-total">NN$0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Mount -->
+  <div id="footer-mount"></div>
+
+  <script type="module" src="app.js"></script>
+
+  <!-- Account specific logic -->
+  <script type="module">
+    import { StoreDb } from './app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Profile local storage handler
+      const profile = StoreDb.get('profile') || {
+        name: 'Alex Mercer',
+        email: 'alex.mercer@tech.com',
+        phone: '+1 (555) 123-4567',
+        address: 'Otjiwarongo, Namibia'
+      };
+
+      const nameInput = document.getElementById('profile-name');
+      const emailInput = document.getElementById('profile-email');
+      const phoneInput = document.getElementById('profile-phone');
+      const addressInput = document.getElementById('profile-address');
+
+      nameInput.value = profile.name;
+      emailInput.value = profile.email;
+      phoneInput.value = profile.phone;
+      addressInput.value = profile.address;
+
+      document.getElementById('profile-edit-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const updated = {
+          name: nameInput.value.trim(),
+          email: emailInput.value.trim(),
+          phone: phoneInput.value.trim(),
+          address: addressInput.value.trim()
+        };
+        StoreDb.set('profile', updated);
+        alert('Profile details updated successfully!');
+      });
+
+      // 2. Orders History Rendering
+      const orders = StoreDb.get('orders') || [];
+      const ordersBody = document.getElementById('orders-history-body');
+      const noOrdersMsg = document.getElementById('no-orders-msg');
+      const table = document.getElementById('orders-history-table');
+
+      function renderOrderHistory() {
+        if (orders.length === 0) {
+          table.style.display = 'none';
+          noOrdersMsg.style.display = 'block';
+          return;
+        }
+
+        table.style.display = 'table';
+        noOrdersMsg.style.display = 'none';
+
+        ordersBody.innerHTML = orders.map(ord => {
+          const formattedDate = new Date(ord.date).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric'
+          });
+
+          let badgeClass = 'badge-new';
+          if (ord.status === 'Shipped') badgeClass = 'badge-openbox';
+          if (ord.status === 'Delivered') badgeClass = 'badge-used';
+
+          return `
+            <tr class="animate-fade-in">
+              <td><strong>${ord.id}</strong></td>
+              <td>${formattedDate}</td>
+              <td>${ord.paymentMethod}</td>
+              <td><strong>N$${ord.total.toLocaleString(undefined, {minimumFractionDigits: 2})}</strong></td>
+              <td><span class="badge ${badgeClass}">${ord.status}</span></td>
+              <td>
+                <button class="btn btn-secondary view-order-details-btn" data-id="${ord.id}" style="padding:4px 10px; font-size:0.75rem; min-height:30px;">Details</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        if (window.lucide) window.lucide.createIcons();
+
+        // Details buttons click binding
+        ordersBody.querySelectorAll('.view-order-details-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const ordId = btn.getAttribute('data-id');
+            showOrderDetailModal(ordId);
+          });
+        });
+      }
+
+      // Modal Elements
+      const modal = document.getElementById('order-detail-modal');
+      const modalClose = document.getElementById('order-detail-close-btn');
+
+      modalClose.addEventListener('click', () => {
+        modal.classList.remove('active');
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+
+      function showOrderDetailModal(id) {
+        const order = orders.find(o => o.id === id);
+        if (!order) return;
+
+        document.getElementById('modal-order-id').textContent = `Order ${order.id}`;
+        document.getElementById('modal-order-date').textContent = `Date Placed: ${new Date(order.date).toLocaleString()}`;
+        document.getElementById('modal-order-address').textContent = order.customer.address;
+        document.getElementById('modal-order-payment').textContent = order.paymentMethod;
+
+        // Populate items
+        const itemsContainer = document.getElementById('modal-order-items-list');
+        itemsContainer.innerHTML = order.items.map(item => `
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; padding:4px 0;">
+            <span><strong>${item.name}</strong> <span style="color:var(--color-muted-foreground);">x${item.qty}</span></span>
+            <span>N$${(item.price * item.qty).toLocaleString()}</span>
+          </div>
+        `).join('');
+
+        // Populate costs
+        document.getElementById('modal-order-subtotal').textContent = `N$${order.subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('modal-order-discount').textContent = `-N$${order.discount.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('modal-order-shipping').textContent = order.shipping === 0 ? 'FREE' : `N$${order.shipping.toFixed(2)}`;
+        document.getElementById('modal-order-tax').textContent = `N$${order.tax.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('modal-order-total').textContent = `N$${order.total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+        modal.classList.add('active');
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      // Initial execution
+      renderOrderHistory();
+    });
+  </script>
+</body>
+</html>
