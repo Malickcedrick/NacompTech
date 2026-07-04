@@ -159,6 +159,13 @@
       const productsGrid = document.getElementById('shop-products-grid');
       const fallbackContainer = document.getElementById('no-products-fallback');
 
+      // Listen for catalog updates from admin dashboard (cross-tab sync)
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'nct_catalog') {
+          location.reload();
+        }
+      });
+
       // 1. Read URL params
       const urlParams = new URLSearchParams(window.location.search);
       const initialCategory = urlParams.get('category');

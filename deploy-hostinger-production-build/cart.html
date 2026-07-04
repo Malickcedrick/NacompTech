@@ -74,7 +74,7 @@
             <span id="summary-shipping">NN$25.00</span>
           </div>
 
-          <div class="summary-row">
+          <div class="summary-row" style="display:none;">
             <span>15% Sales Tax (VAT)</span>
             <span id="summary-tax">NN$0.00</span>
           </div>
@@ -135,88 +135,80 @@
         const cartItems = CartState.getItems();
         
         if (cartItems.length === 0) {
-          emptyFallback.style.display = 'block';
           activeLayout.style.display = 'none';
+          emptyFallback.style.display = 'block';
           if (window.lucide) window.lucide.createIcons();
           return;
         }
 
-        emptyFallback.style.display = 'none';
         activeLayout.style.display = 'grid';
+        emptyFallback.style.display = 'none';
 
-        cartTableBody.innerHTML = cartItems.map(item => {
-          const totalVal = item.price * item.qty;
-          return `
-            <tr class="animate-fade-in">
-              <td>
-                <div class="cart-item-info">
-                  <img src="${item.image}" alt="${item.name}" class="cart-item-img">
-                  <div>
-                    <h4 style="font-size:0.95rem; line-height:1.2;">${item.name}</h4>
-                    <span class="badge ${item.condition === 'New' ? 'badge-new' : 'badge-used'}" style="margin-top:4px;">${item.condition}</span>
-                  </div>
+        // Render table
+        cartTableBody.innerHTML = cartItems.map(item => `
+          <tr class="animate-fade-in">
+            <td>
+              <div class="cart-product-cell">
+                <img src="${item.image}" alt="${item.name}" class="cart-product-img">
+                <div>
+                  <a href="product.html?id=${item.id}" class="cart-product-title">${item.name}</a>
+                  <span class="cart-product-meta">Condition: ${item.condition} &bull; Brand: ${item.brand}</span>
                 </div>
-              </td>
-              <td>N$${item.price.toLocaleString()}</td>
-              <td>
-                <div class="qty-selector" style="min-height:36px;">
-                  <button class="qty-btn qty-minus" data-id="${item.id}" style="width:30px; height:30px;">&minus;</button>
-                  <input type="text" class="qty-input qty-val" value="${item.qty}" readonly style="width:30px;">
-                  <button class="qty-btn qty-plus" data-id="${item.id}" style="width:30px; height:30px;">+</button>
-                </div>
-              </td>
-              <td><strong>N$${totalVal.toLocaleString()}</strong></td>
-              <td>
-                <button class="btn btn-secondary remove-item-btn" data-id="${item.id}" style="padding:6px; color:var(--color-destructive); min-height:auto;" aria-label="Remove item"><i data-lucide="trash-2" style="width:16px; height:16px;"></i></button>
-              </td>
-            </tr>
-          `;
-        }).join('');
+              </div>
+            </td>
+            <td><strong>N$${item.price.toLocaleString()}</strong></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <button class="btn btn-secondary qty-btn minus" data-id="${item.id}" style="padding:4px 8px; min-height:auto;">-</button>
+                <span style="font-weight:700; min-width:20px; text-align:center;">${item.qty}</span>
+                <button class="btn btn-secondary qty-btn plus" data-id="${item.id}" style="padding:4px 8px; min-height:auto;">+</button>
+              </div>
+            </td>
+            <td><strong>N$${(item.price * item.qty).toLocaleString()}</strong></td>
+            <td>
+              <button class="btn btn-secondary remove-item-btn" data-id="${item.id}" style="padding:4px 8px; min-height:auto; color:var(--color-destructive); border-color:transparent;"><i data-lucide="trash-2" style="width:16px; height:16px;"></i></button>
+            </td>
+          </tr>
+        `).join('');
 
         if (window.lucide) window.lucide.createIcons();
 
-        // Bind Qty adjusters
-        cartTableBody.querySelectorAll('.qty-minus').forEach(btn => {
+        // Bind events
+        cartTableBody.querySelectorAll('.qty-btn').forEach(btn => {
           btn.addEventListener('click', () => {
-            const pid = btn.getAttribute('data-id');
-            const item = cartItems.find(i => i.id === pid);
-            if (item && item.qty > 1) {
-              CartState.updateQty(pid, item.qty - 1);
+            const id = btn.getAttribute('data-id');
+            const isPlus = btn.classList.contains('plus');
+            const item = cartItems.find(p => p.id === id);
+            
+            if (item) {
+              const newQty = isPlus ? item.qty + 1 : item.qty - 1;
+              if (newQty <= 0) {
+                CartState.remove(id);
+              } else {
+                CartState.updateQty(id, newQty);
+              }
               renderCart();
             }
           });
         });
 
-        cartTableBody.querySelectorAll('.qty-plus').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const pid = btn.getAttribute('data-id');
-            const item = cartItems.find(i => i.id === pid);
-            if (item && item.qty < item.stock) {
-              CartState.updateQty(pid, item.qty + 1);
-              renderCart();
-            }
-          });
-        });
-
-        // Bind Remove buttons
         cartTableBody.querySelectorAll('.remove-item-btn').forEach(btn => {
           btn.addEventListener('click', () => {
-            const pid = btn.getAttribute('data-id');
-            CartState.removeItem(pid);
+            const id = btn.getAttribute('data-id');
+            CartState.remove(id);
             renderCart();
           });
         });
 
-        calculateCosts(cartItems);
-      }
-
-      function calculateCosts(cartItems) {
+        // Compute metrics
         const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        
+
+        // Adjust coupon if subtotal fell below minCart
         let discount = 0;
         if (appliedCoupon) {
           if (appliedCoupon.minCart && subtotal < appliedCoupon.minCart) {
             appliedCoupon = null;
+            promoInput.value = '';
             promoMsg.textContent = `Coupon removed. Minimum order value not met.`;
             promoMsg.style.color = 'var(--color-destructive)';
           } else {
@@ -241,8 +233,8 @@
         }
 
         const taxableBase = Math.max(0, subtotal - discount);
-        const tax = taxableBase * 0.15;
-        const total = taxableBase + shipping + tax;
+        const tax = 0;
+        const total = taxableBase + shipping;
 
         // Render figures
         subtotalEl.textContent = `N$${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;

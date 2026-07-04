@@ -21,7 +21,7 @@
       <p style="color:var(--color-secondary);">Manage system inventory, monitor sales analytics, fulfill customer orders, and configure simulated Google AdSense parameters.</p>
     </div>
 
-    <div class="admin-layout" style="margin-top:var(--space-lg);">
+    <div class="admin-layout" id="admin-dashboard-layout" style="margin-top:var(--space-lg); display:none;">
       <!-- 1. Left Sidebar Navigation -->
       <aside class="admin-sidebar glass-panel">
         <button class="admin-menu-btn active" data-target="pane-admin-overview"><i data-lucide="bar-chart-3" style="width:18px; height:18px;"></i> Overview</button>
@@ -30,6 +30,8 @@
         <button class="admin-menu-btn" data-target="pane-admin-orders"><i data-lucide="shopping-bag" style="width:18px; height:18px;"></i> Orders Manager</button>
         <button class="admin-menu-btn" data-target="pane-admin-discounts"><i data-lucide="ticket" style="width:18px; height:18px;"></i> Promo Coupons</button>
         <button class="admin-menu-btn" data-target="pane-admin-ads"><i data-lucide="layout" style="width:18px; height:18px;"></i> Google AdSense</button>
+        <hr style="border:none; border-top:1px solid var(--color-border); margin:var(--space-sm) 0;">
+        <button class="admin-menu-btn" id="admin-logout-btn" style="color:var(--color-destructive);"><i data-lucide="log-out" style="width:18px; height:18px;"></i> Logout</button>
       </aside>
 
       <!-- 2. Right Main Panes -->
@@ -264,6 +266,26 @@
     </div>
   </main>
 
+  <!-- ADMIN PORTAL LOGIN OVERLAY -->
+  <div class="modal-overlay" id="admin-login-overlay" style="z-index:999999;">
+    <div class="modal-box glass-panel animate-fade-in" style="max-width:400px; width:90%; margin-top:15vh; text-align:center;">
+      <div style="width:64px; height:64px; background-color:var(--color-primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto var(--space-md) auto; font-size:1.5rem; box-shadow: 0 4px 12px rgba(3, 83, 164, 0.25);">
+        <i data-lucide="lock" style="width:28px; height:28px;"></i>
+      </div>
+      <h2 class="text-gradient">Merchant Login</h2>
+        <button class="modal-close" id="admin-login-close-btn" aria-label="Close login"><i data-lucide="x" style="width:24px; height:24px;"></i></button>
+        <p style="color:var(--color-secondary); font-size:0.85rem; margin-top:4px; margin-bottom:var(--space-md);">Please enter the administrative key to access store databases.</p>
+      <form id="admin-login-form" style="display:flex; flex-direction:column; gap:var(--space-md); text-align:left;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" for="admin-password">Security Password</label>
+          <input type="password" id="admin-password" class="form-input" required placeholder="••••••••" style="padding:10px 14px;">
+          <div id="login-error-msg" style="color:var(--color-destructive); font-size:0.8rem; margin-top:6px; display:none; font-weight:700;">Invalid administrator credentials.</div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; margin-top:var(--space-xs);">Unlock Portal</button>
+      </form>
+    </div>
+  </div>
+
   <!-- CRUD ADD/EDIT MODAL OVERLAY -->
   <div class="modal-overlay" id="crud-modal-overlay">
     <div class="modal-box glass-panel" style="max-width:550px; width:95%;">
@@ -349,22 +371,94 @@
     import { StoreDb } from './app.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Pane Switching Logic
-      const buttons = document.querySelectorAll('.admin-sidebar .admin-menu-btn');
-      const panes = document.querySelectorAll('.admin-pane');
+      // 0. Admin Authentication Check
+      const loginOverlay = document.getElementById('admin-login-overlay');
+      const dashboardLayout = document.getElementById('admin-dashboard-layout');
+      const loginForm = document.getElementById('admin-login-form');
+      const loginPasswordInput = document.getElementById('admin-password');
+      const loginErrorMsg = document.getElementById('login-error-msg');
+      const logoutBtn = document.getElementById('admin-logout-btn');
 
-      buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          buttons.forEach(b => b.classList.remove('active'));
-          panes.forEach(p => p.classList.remove('active'));
-          
-          btn.classList.add('active');
-          const target = btn.getAttribute('data-target');
-          document.getElementById(target).classList.add('active');
-        });
+      function initDashboard() {
+        loginOverlay.classList.remove('active');
+        dashboardLayout.style.display = 'grid';
+        if (window.lucide) window.lucide.createIcons();
+        renderAllPanes();
+      }
+
+      if (sessionStorage.getItem('nct_admin_session') === 'active') {
+        initDashboard();
+      } else {
+        loginOverlay.classList.add('active');
+        dashboardLayout.style.display = 'none';
+      }
+
+      loginForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pwd = loginPasswordInput.value;
+        if (pwd === 'admin123') {
+          sessionStorage.setItem('nct_admin_session', 'active');
+          loginErrorMsg.style.display = 'none';
+          initDashboard();
+          alert('Welcome, Administrator. Access granted.');
+        } else {
+          loginErrorMsg.style.display = 'block';
+          loginPasswordInput.value = '';
+          loginPasswordInput.focus();
+        }
       });
 
-      // 2. Fetch Data State
+      logoutBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (confirm('Are you sure you want to log out of the Merchant Admin Portal?')) {
+          sessionStorage.removeItem('nct_admin_session');
+          // Reset UI without full page reload
+          loginOverlay.classList.add('active');
+          dashboardLayout.style.display = 'none';
+          // Reload to ensure all states are cleared
+          location.reload();
+        }
+      });
+
+        // 1. Pane Switching Logic
+        // Close button for login overlay
+        const loginCloseBtn = document.getElementById('admin-login-close-btn');
+        loginCloseBtn?.addEventListener('click', () => {
+          loginOverlay.classList.remove('active');
+          loginPasswordInput.value = '';
+          loginErrorMsg.style.display = 'none';
+        });
+      const buttons = document.querySelectorAll('.admin-sidebar .admin-menu-btn:not(#admin-logout-btn)');
+      const panes = document.querySelectorAll('.admin-pane');
+
+      function initPaneSwitching() {
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            console.log('Admin sidebar button clicked:', btn.dataset.target);
+            // Remove active states
+            buttons.forEach(b => b.classList.remove('active'));
+            panes.forEach(p => p.classList.remove('active'));
+            // Activate selected
+            btn.classList.add('active');
+            const target = btn.dataset.target;
+            const paneEl = document.getElementById(target);
+            if (paneEl) {
+              paneEl.classList.add('active');
+            } else {
+              console.warn('Target pane not found for', target);
+            }
+          });
+        });
+      }
+
+      initPaneSwitching();
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'nct_admin_session' && !e.newValue) {
+          location.reload();
+        }
+      });
+// 2. Fetch Data State
       let catalog = StoreDb.get('catalog') || [];
       let orders = StoreDb.get('orders') || [];
       let coupons = StoreDb.get('coupons') || [];
@@ -834,6 +928,7 @@
 
       // Combined Render Function
       function renderAllPanes() {
+        if (sessionStorage.getItem('nct_admin_session') !== 'active') return;
         catalog = StoreDb.get('catalog') || [];
         orders = StoreDb.get('orders') || [];
         coupons = StoreDb.get('coupons') || [];

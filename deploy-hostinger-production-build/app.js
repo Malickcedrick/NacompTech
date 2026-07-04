@@ -31,29 +31,6 @@ export class StoreDb {
     } else {
       if (!localStorage.getItem('nct_catalog')) {
         localStorage.setItem('nct_catalog', JSON.stringify(INITIAL_PRODUCTS));
-      } else {
-        // Sync catalog changes immediately if INITIAL_PRODUCTS changed
-        try {
-          const storedCatalogRaw = localStorage.getItem('nct_catalog');
-          if (storedCatalogRaw) {
-            const storedCatalog = JSON.parse(storedCatalogRaw);
-            let needsReset = storedCatalog.length !== INITIAL_PRODUCTS.length;
-            if (!needsReset) {
-              for (const initialP of INITIAL_PRODUCTS) {
-                const storedP = storedCatalog.find(p => p.id === initialP.id);
-                if (!storedP || storedP.price !== initialP.price || storedP.image !== initialP.image) {
-                  needsReset = true;
-                  break;
-                }
-              }
-            }
-            if (needsReset) {
-              localStorage.setItem('nct_catalog', JSON.stringify(INITIAL_PRODUCTS));
-            }
-          }
-        } catch (e) {
-          console.error('Failed to sync catalog:', e);
-        }
       }
       if (!localStorage.getItem('nct_categories')) {
         localStorage.setItem('nct_categories', JSON.stringify(INITIAL_CATEGORIES));

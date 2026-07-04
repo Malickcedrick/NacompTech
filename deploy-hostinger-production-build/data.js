@@ -6,7 +6,7 @@
 
 export const INITIAL_CATEGORIES = [
   { id: 'laptops', name: 'Laptops', count: 6, icon: 'laptop', desc: 'Premium gaming rigs, ultrabooks, and productivity laptops.' },
-  { id: 'desktops', name: 'Desktops & Workstations', count: 0, icon: 'desktop', desc: 'Custom built towers, studio workstations, and gaming PCs.' },
+  { id: 'desktops', name: 'Desktops & Workstations', count: 1, icon: 'desktop', desc: 'Custom built towers, studio workstations, and gaming PCs.' },
   { id: 'components', name: 'PC Components', count: 3, icon: 'cpu', desc: 'Next-gen GPUs, high-performance CPUs, fast RAM, and liquid coolers.' },
   { id: 'accessories', name: 'Computer Accessories', count: 3, icon: 'keyboard', desc: 'Mechanical keyboards, wireless gaming mice, audiophile headsets.' }
 ];
@@ -323,6 +323,35 @@ export const INITIAL_PRODUCTS = [
     reviews: [
       { id: 1, user: 'Overclocker', rating: 4, date: '2026-05-15', title: 'Excellent timings', text: 'Works flawlessly on my X670 motherboard at the EXPO profile. RGB looks classy and not tacky.', verified: true }
     ]
+  },
+  {
+    id: 'desk-01',
+    name: 'Chronos Custom Gaming Tower',
+    category: 'desktops',
+    condition: 'New',
+    price: 49999.00,
+    rating: 5.0,
+    stock: 1,
+    image: 'assets/desktop_pc.png',
+    featured: true,
+    bestSeller: true,
+    latest: true,
+    brand: 'Chronos',
+    desc: 'Full hardline custom liquid loop desktop. Equipped with a Ryzen 9 7950X3D processor and liquid-cooled NVIDIA GeForce RTX 4090. A absolute work of art housed in carbon fiber and tempered glass.',
+    specs: {
+      'Processor': 'AMD Ryzen 9 7950X3D (16 Cores, 3D V-Cache)',
+      'Graphics Card': 'Liquid-Cooled NVIDIA GeForce RTX 4090 24GB GDDR6X',
+      'Memory': '64GB DDR5 G.Skill Trident Z5 6000MHz',
+      'Storage': '4TB WD Black SN850X PCIe Gen4 NVMe SSD',
+      'Motherboard': 'ASUS ROG Crosshair X670E Hero',
+      'Cooling': 'Custom Hardline Acrylic Tubing, EKWB Blocks & Dual 360mm Radiators',
+      'Power Supply': '1200W Seasonic Prime Titanium (ATX 3.0)',
+      'Operating System': 'Windows 11 Pro Pre-configured',
+      'Warranty': '2 Year Systems Warranty'
+    },
+    reviews: [
+      { id: 1, user: 'Hassan K.', rating: 5, date: '2026-06-28', title: 'Absolute Masterpiece', text: 'Quiet under heavy rendering loads. The hardline loop bent work is pristine. Simply the fastest PC money can buy.', verified: true }
+    ]
   }
 ];
 
@@ -365,8 +394,8 @@ export const INITIAL_ORDERS = [
     subtotal: 1899.00,
     discount: 0.00,
     shipping: 25.00,
-    tax: 284.85,
-    total: 2208.85,
+    tax: 0.00,
+    total: 1924.00,
     paymentMethod: 'Credit Card (ending *4242)',
     status: 'Shipped'
   },
@@ -381,8 +410,8 @@ export const INITIAL_ORDERS = [
     subtotal: 627.00,
     discount: 94.05, // TECH15 coupon
     shipping: 0.00, // Free shipping
-    tax: 79.94,
-    total: 612.89,
+    tax: 0.00,
+    total: 532.95,
     paymentMethod: 'PayPal',
     status: 'Pending'
   }
